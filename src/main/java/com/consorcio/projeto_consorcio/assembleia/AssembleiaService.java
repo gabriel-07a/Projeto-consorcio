@@ -30,7 +30,7 @@ public class AssembleiaService {
         //valida o sorteio
         grupoConsorcio.getState().validarSorteio();
         //busca os elegiveis
-        List<Cota> elegiveis = cotaRepository.findByGrupoIdAndStatus(grupoId, StatusCota.ATIVA);
+        List<Cota> elegiveis = cotaRepository.findByGrupoConsorcioIdAndStatus(grupoId, StatusCota.ATIVA);
         //realiza o sorteio com os candidatos
         ContemplacaoStrategy estrategiaSorteio = new SorteioStrategy();
         Cota cotaVencedora = estrategiaSorteio.elegerVencedor(elegiveis);

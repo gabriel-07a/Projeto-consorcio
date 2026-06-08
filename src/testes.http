@@ -1,0 +1,48 @@
+### Criar um Novo Grupo de Consórcio
+POST http://localhost:8080/grupos/criar
+Content-Type: application/json
+
+{
+  "nome": "Consorcio Auto Exclusive 2026",
+  "valorCota": 750.00,
+  "vagasMaximas": 120,
+  "duracaoMeses": 100,
+  "enderecoContrato": "0x32A4bB67C8901234567890abcdef1234567890ab",
+  "aceitaLances": true,
+  "tipoLanceAdicional": "FIXO"
+}
+### Criar um novo usuário
+POST http://localhost:8080/usuarios
+Content-Type: application/json
+
+{
+"nome": "Alice Silva",
+"email": "alice@email.com",
+  "senhaLimpa": "132fdas9fh",
+"taxId": "123.456.789-00",
+"carteiraWeb3": "0x9999bB67C8901234567890abcdef1234567890aa",
+  "countryCode": "BR"
+}
+
+###cria outro
+POST http://localhost:8080/usuarios
+Content-Type: application/json
+
+{
+  "nome": "Bob Souza",
+  "email": "bob@email.com",
+  "senhaLimpa": "30dfsf9d",
+  "taxId": "987.654.321-11",
+  "carteiraWeb3": "0x8888bB67C8901234567890abcdef1234567890bb",
+  "countryCode": "US"
+}
+
+### colocar user 1 no grupo 1
+
+POST http://localhost:8080/cotas/comprar
+Content-Type: application/json
+
+{
+  "usuarioId": 1,
+  "grupoId": 1
+}

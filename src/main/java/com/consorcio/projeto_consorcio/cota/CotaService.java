@@ -35,7 +35,7 @@ public class CotaService {
         grupoConsorcio.getState().validarNovoParticipante(grupoConsorcio, usuario);
 
         //pega o cotaRepository quantas cota o grupo tem atualmente
-        long totalCotas = cotaRepository.countByGrupoId(grupoConsorcio.getId());
+        long totalCotas = cotaRepository.countBygrupoConsorcioId(grupoConsorcio.getId());
         //pega a quantidade e incrementa
         int numeroDeCotasNovo = (int) totalCotas++;
 

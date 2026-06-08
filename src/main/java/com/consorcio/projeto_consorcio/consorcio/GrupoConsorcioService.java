@@ -39,6 +39,7 @@ public class GrupoConsorcioService {
         novoGrupo.setNome(requestDTO.nome());
         novoGrupo.setValorCota(requestDTO.valorCota());
         novoGrupo.setVagasMaximas(requestDTO.vagasMaximas());
+        novoGrupo.setDuracaoMeses(requestDTO.duracaoMeses());
         novoGrupo.setEnderecoContrato(requestDTO.enderecoContrato());
         novoGrupo.setAceitaLances(requestDTO.aceitaLances());
         novoGrupo.setTipoLanceAdicional(tipoLanceFinal);
