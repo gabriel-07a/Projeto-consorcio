@@ -1,4 +1,4 @@
-package com.consorcio.projeto_consorcio.cota;
+package com.consorcio.projeto_consorcio.cota.enums;
 
 public enum StatusCota {
     ATIVA,

@@ -1,5 +1,7 @@
 package com.consorcio.projeto_consorcio.consorcio;
 
+import com.consorcio.projeto_consorcio.consorcio.enums.StatusGrupo;
+import com.consorcio.projeto_consorcio.consorcio.enums.TipoLance;
 import com.consorcio.projeto_consorcio.consorcio.state.*;
 import com.consorcio.projeto_consorcio.cota.Cota;
 import jakarta.persistence.*;
@@ -10,8 +12,6 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.consorcio.projeto_consorcio.consorcio.state.StatusGrupo.*;
 
 @Entity
 @Table(name = "grupo_consorcio") //nome da tabela
@@ -32,8 +32,12 @@ public class GrupoConsorcio {
     @Column(name = "vagas_maximas", nullable = false)
     private Integer vagasMaximas;
 
+    //falta adicionar no banco
+    @Column(name = "duracao_meses", nullable = false)
+    private Integer duracaoMeses;
+
     @Column(name = "endereco_contrato", length = 42) // length 42 para Web3
-    private String enderecoContrato;
+    private String enderecoContrato; //smartContract
 
     // PADRÃO STATE
     @Enumerated(EnumType.STRING)

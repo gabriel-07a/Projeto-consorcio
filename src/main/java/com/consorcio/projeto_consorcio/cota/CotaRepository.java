@@ -1,6 +1,6 @@
 package com.consorcio.projeto_consorcio.cota;
 
-import com.consorcio.projeto_consorcio.cota.StatusCota;
+import com.consorcio.projeto_consorcio.cota.enums.StatusCota;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

@@ -31,8 +31,8 @@ public class GrupoFinalizadoState implements GrupoState{
     }
 
     @Override
-    public void cancelarGrupo() {
-
+    public void validaExclusaoDeConsorcio(GrupoConsorcio grupoConsorcio, String EnderecoContrato) {
+        throw new RuntimeException("Erro: Um grupo encerrado não pode ser apagado!");
     }
 
     @Override

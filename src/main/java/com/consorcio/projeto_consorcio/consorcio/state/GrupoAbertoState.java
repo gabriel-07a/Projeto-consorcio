@@ -1,9 +1,8 @@
 package com.consorcio.projeto_consorcio.consorcio.state;
 
 import com.consorcio.projeto_consorcio.consorcio.GrupoConsorcio;
-import com.consorcio.projeto_consorcio.consorcio.GrupoConsorcioRepository;
+import com.consorcio.projeto_consorcio.consorcio.enums.StatusGrupo;
 import com.consorcio.projeto_consorcio.cota.Cota;
-import com.consorcio.projeto_consorcio.cota.CotaRepository;
 import com.consorcio.projeto_consorcio.usuario.Usuario;
 
 public class GrupoAbertoState implements GrupoState{
@@ -37,7 +36,9 @@ public class GrupoAbertoState implements GrupoState{
     }
 
     @Override
-    public void cancelarGrupo() {
+    public void validaExclusaoDeConsorcio(GrupoConsorcio grupoConsorcio, String enderecoContrato) {
+        if(!grupoConsorcio.getCotas().isEmpty()) throw new RuntimeException("Erro: Um grupo com participantes não pode ser excluído!");
+        if(!grupoConsorcio.getEnderecoContrato().equalsIgnoreCase(enderecoContrato)) throw new RuntimeException("Erro: O endereço do Smart Contract do grupo está errado!");
 
     }
 

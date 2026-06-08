@@ -1,4 +1,4 @@
-package com.consorcio.projeto_consorcio.consorcio.state;
+package com.consorcio.projeto_consorcio.consorcio.enums;
 
 public enum StatusGrupo {
     EM_FORMACAO,

@@ -2,7 +2,7 @@ package com.consorcio.projeto_consorcio.consorcio.state;
 
 import com.consorcio.projeto_consorcio.consorcio.GrupoConsorcio;
 import com.consorcio.projeto_consorcio.cota.Cota;
-import com.consorcio.projeto_consorcio.cota.StatusCota;
+import com.consorcio.projeto_consorcio.cota.enums.StatusCota;
 import com.consorcio.projeto_consorcio.usuario.Usuario;
 
 public class GrupoEmAndamentoState implements GrupoState{
@@ -33,8 +33,8 @@ public class GrupoEmAndamentoState implements GrupoState{
     }
 
     @Override
-    public void cancelarGrupo() {
-
+    public void validaExclusaoDeConsorcio(GrupoConsorcio grupoConsorcio, String EnderecoContrato) {
+        throw new RuntimeException("Erro: Um grupo em andamento não pode ser apagado!");
     }
 
     @Override

@@ -21,12 +21,13 @@ public class UsuarioController {
 
     //rota de registro de usuario
     @PostMapping
-    public UsuarioResponseDTO cadastrar(@RequestBody @Valid UsuarioRequestDTO dto){
-        //o valid é para passar apenas as requisições validades pelos requestDTO
+    public UsuarioResponseDTO cadastrar(@RequestBody @Valid UsuarioRequestDTO dto) {
+        //o valid é para passar apenas as requisições validadas pelos requestDTO
         //o Controller só repassa o DTO para o Service e devolve a resposta segura.
         return usuarioService.cadastrarUsuario(dto);
     }
 
+    //rota de listar resgistros
     @GetMapping
     public List<UsuarioResponseDTO> listarTodos(){
         return usuarioRepository.findAll().stream()
@@ -40,6 +41,7 @@ public class UsuarioController {
                 .toList();
     }
 
+    //rota para deletar resgistros
     @DeleteMapping("/{id}")
     public void deletarUsuario(@PathVariable Long id){
         usuarioService.deletarUsuario(id);

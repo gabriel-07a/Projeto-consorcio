@@ -1,6 +1,7 @@
 package com.consorcio.projeto_consorcio.cota;
 
 import com.consorcio.projeto_consorcio.consorcio.GrupoConsorcio;
+import com.consorcio.projeto_consorcio.cota.enums.StatusCota;
 import com.consorcio.projeto_consorcio.usuario.Usuario;
 import jakarta.persistence.*;
 import lombok.Getter;

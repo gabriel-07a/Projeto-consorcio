@@ -3,12 +3,12 @@ package com.consorcio.projeto_consorcio.cota;
 import com.consorcio.projeto_consorcio.consorcio.GrupoConsorcio;
 import com.consorcio.projeto_consorcio.consorcio.GrupoConsorcioRepository;
 
+import com.consorcio.projeto_consorcio.cota.dto.CotaResponseDTO;
+import com.consorcio.projeto_consorcio.cota.enums.StatusCota;
 import com.consorcio.projeto_consorcio.usuario.Usuario;
 import com.consorcio.projeto_consorcio.usuario.UsuarioRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 public class CotaService {
@@ -24,7 +24,7 @@ public class CotaService {
     }
 
     @Transactional // garante que ser der erro o banco defaz tudo
-    public void comprarCota(Long usuarioId, Long grupoId){
+    public CotaResponseDTO comprarCota(Long usuarioId, Long grupoId){
         Usuario usuario = usuarioRepository.findById(usuarioId)
                 .orElseThrow(() -> new RuntimeException("Erro: Usuário não cadastrado no sistema!"));
         GrupoConsorcio grupoConsorcio = grupoConsorcioRepository.findById(grupoId)
@@ -47,10 +47,16 @@ public class CotaService {
         cotaRepository.save(novaCota);
         //salvando o grupo
         grupoConsorcioRepository.save(grupoConsorcio);
+
+        return new CotaResponseDTO(
+                novaCota.getNumeroCota(),
+                novaCota.getUsuario().getNome(),
+                novaCota.getGrupoConsorcio().getNome()
+        );
     }
 
     @Transactional
-    public void cancelarCota(Long cotaId){
+    public CotaResponseDTO cancelarCota(Long cotaId){
         //primeiro busca a cota pelo id
         Cota cota = cotaRepository.findById(cotaId)
                 .orElseThrow(() -> new RuntimeException("Erro: Cota não encontrada!"));
@@ -61,6 +67,12 @@ public class CotaService {
         //se passar salva no banco
         cota.setStatus(StatusCota.CANCELADA);
         cotaRepository.save(cota);
+
+        return new CotaResponseDTO(
+                cota.getNumeroCota(),
+                cota.getUsuario().getNome(),
+                cota.getGrupoConsorcio().getNome()
+        );
 
     }
 

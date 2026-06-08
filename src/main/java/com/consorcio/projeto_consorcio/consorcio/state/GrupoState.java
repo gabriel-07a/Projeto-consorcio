@@ -10,7 +10,7 @@ public interface GrupoState {
     public void validarSorteio();
     public void comecarConsorcio();
     public void encerrarConsorcio();
-    public void cancelarGrupo();
+    public void validaExclusaoDeConsorcio(GrupoConsorcio grupoConsorcio, String EnderecoContrato);
     public void transferirCota();
     public void ofertarLance();
     public void pagarParcela();
