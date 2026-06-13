@@ -1,7 +1,10 @@
 package com.consorcio.projeto_consorcio.usuario;
 
+import com.consorcio.projeto_consorcio.usuario.dto.AtualizaUsuarioRequestDTO;
 import com.consorcio.projeto_consorcio.usuario.dto.UsuarioRequestDTO;
 import com.consorcio.projeto_consorcio.usuario.dto.UsuarioResponseDTO;
+import jakarta.transaction.Transactional;
+import lombok.extern.java.Log;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -16,6 +19,7 @@ public class UsuarioService {
     }
 
     //método da regra de négocio
+    @Transactional
     public UsuarioResponseDTO cadastrarUsuario(UsuarioRequestDTO dto){
         boolean emailExiste = usuarioRepository.existsByEmail(dto.email());
         boolean taxIdExiste = usuarioRepository.existsByTaxId(dto.taxId());
@@ -54,9 +58,45 @@ public class UsuarioService {
         //return usuarioRepository.save(novoUsuario);
     }
 
+    @Transactional
+    public UsuarioResponseDTO atualizaUsuario(Long id, AtualizaUsuarioRequestDTO dadosAtualizados){
+        Usuario usuario = usuarioRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Erro: Esse usuário não existe!"));
+
+        if(dadosAtualizados.nome() != null && !dadosAtualizados.nome().isBlank()){
+            usuario.setNome(dadosAtualizados.nome());
+        }
+        if(dadosAtualizados.carteiraWeb3() != null && !dadosAtualizados.carteiraWeb3().isBlank()){
+            usuario.setCarteiraWeb3(dadosAtualizados.carteiraWeb3());
+        }
+
+        usuarioRepository.save(usuario);
+
+        return new UsuarioResponseDTO(
+                usuario.getId(),
+                usuario.getNome(),
+                usuario.getEmail(),
+                usuario.getCarteiraWeb3(),
+                usuario.getCountryCode()
+        );
+    }
+
+    public UsuarioResponseDTO buscaUsuario(Long id){
+        Usuario usuarioEncontrado =  usuarioRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Erro: Esse usuário não existe!"));
+
+        return new UsuarioResponseDTO(
+                usuarioEncontrado.getId(),
+                usuarioEncontrado.getNome(),
+                usuarioEncontrado.getEmail(),
+                usuarioEncontrado.getCarteiraWeb3(),
+                usuarioEncontrado.getCountryCode()
+        );
+    }
+
     public void deletarUsuario(Long id){
         if(!usuarioRepository.existsById(id)) throw new RuntimeException("Erro: Esse usuário não existe!");
 
-        usuarioRepository.deleteById(id);
+        usuarioRepository.deleteById(id);//trocar isso, não posso deletar nenhum registro
     }
 }

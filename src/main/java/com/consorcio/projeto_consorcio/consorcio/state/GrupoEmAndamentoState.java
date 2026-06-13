@@ -24,7 +24,7 @@ public class GrupoEmAndamentoState implements GrupoState{
 
     @Override
     public void comecarConsorcio() {
-
+        throw new RuntimeException("Erro: Esse grupo já está em andamento!");
     }
 
     @Override

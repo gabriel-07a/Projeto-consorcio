@@ -3,6 +3,8 @@ package com.consorcio.projeto_consorcio.usuario;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
     // O JpaRepository já traz os métodos save(), findById(), delete() prontos por padrão!
@@ -10,4 +12,5 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
     boolean existsByTaxId(String taxId);
     boolean existsByCarteiraWeb3(String carteiraWeb3);
 
+    List<Usuario> getUsuariosById(Long id);
 }

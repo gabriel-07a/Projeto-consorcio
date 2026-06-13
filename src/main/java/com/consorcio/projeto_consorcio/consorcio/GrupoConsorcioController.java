@@ -26,6 +26,13 @@ public class GrupoConsorcioController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    @PatchMapping("/iniciar/{grupoId}")
+    public ResponseEntity<String> iniciarGrupoConsorcio(@PathVariable Long grupoId){
+        String stringRetorno = grupoConsorcioService.iniciarGrupo(grupoId);
+
+        return ResponseEntity.ok(stringRetorno);
+    }
+
     @DeleteMapping("/apagar/{grupoId}")
     public ResponseEntity<ApagarGrupoConsorcioResponseDTO> apagarGrupoConsorcio(@PathVariable Long grupoId, @RequestParam String enderecoContrato){
         ApagarGrupoConsorcioResponseDTO response = grupoConsorcioService.apagarGrupoConsorcio(grupoId, enderecoContrato);

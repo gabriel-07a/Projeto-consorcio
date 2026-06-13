@@ -22,7 +22,7 @@ public class GrupoFinalizadoState implements GrupoState{
 
     @Override
     public void comecarConsorcio() {
-
+        throw new RuntimeException("Erro: Esse grupo já foi encerrado!");
     }
 
     @Override

@@ -58,6 +58,22 @@ public class GrupoConsorcioService {
         );
     }
 
+
+    @Transactional
+    public String iniciarGrupo(Long grupoId){
+        GrupoConsorcio grupoConsorcio = grupoConsorcioRepository.findById(grupoId)
+                .orElseThrow(() -> new RuntimeException("Erro: Essa grupo não existe!"));
+        grupoConsorcio.getState().comecarConsorcio();
+
+        grupoConsorcio.setStatus(StatusGrupo.EM_ANDAMENTO);
+
+        grupoConsorcioRepository.save(grupoConsorcio);
+
+        return "Grupo: " + grupoConsorcio.getNome()+ " iniciado com suscesso!";
+
+    }
+
+
     @Transactional
     public ApagarGrupoConsorcioResponseDTO apagarGrupoConsorcio(Long grupoId, String enderecoContrato){
         GrupoConsorcio grupoConsorcio = grupoConsorcioRepository.findById(grupoId)

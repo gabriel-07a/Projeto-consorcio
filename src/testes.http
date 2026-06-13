@@ -43,6 +43,33 @@ POST http://localhost:8080/cotas/comprar
 Content-Type: application/json
 
 {
-  "usuarioId": 1,
+  "usuarioId": 2,
   "grupoId": 1
+}
+
+### sorteia
+POST http://localhost:8080/assembleia/grupos/1/sortear
+Content-Type: application/json
+
+
+
+###cria outro
+POST http://localhost:8080/grupos/iniciar/1
+Content-Type: application/json
+
+
+### busca 1 usuario
+GET http://localhost:8080/usuarios/2
+Content-Type: application/json
+
+### lista todos os usuarios
+GET http://localhost:8080/usuarios
+Content-Type: application/json
+
+### busca 1 usuario
+PATCH http://localhost:8080/usuarios/1
+Content-Type: application/json
+
+{
+  "nome": "Gabriel Arcanjo Santos de Camargo"
 }

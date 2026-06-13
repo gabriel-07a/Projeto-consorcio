@@ -27,7 +27,7 @@ public class GrupoAbertoState implements GrupoState{
 
     @Override
     public void comecarConsorcio() {
-
+        //mais pra fente posso colocar um validação por quantidade minima de participantes
     }
 
     @Override
