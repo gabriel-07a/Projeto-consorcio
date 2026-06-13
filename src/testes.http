@@ -3,13 +3,13 @@ POST http://localhost:8080/grupos/criar
 Content-Type: application/json
 
 {
-  "nome": "Consorcio Auto Exclusive 2026",
-  "valorCota": 750.00,
-  "vagasMaximas": 120,
-  "duracaoMeses": 100,
-  "enderecoContrato": "0x32A4bB67C8901234567890abcdef1234567890ab",
+  "nome": "Consorcio jaraguá 2026",
+  "valorCota": 1050.00,
+  "vagasMaximas": 100,
+  "duracaoMeses": 90,
+  "enderecoContrato": "0x9999bB67C8901234567890abcdef1234567890cc",
   "aceitaLances": true,
-  "tipoLanceAdicional": "FIXO"
+  "tipoLanceAdicional": "LIVRE"
 }
 ### Criar um novo usuário
 POST http://localhost:8080/usuarios
@@ -73,3 +73,18 @@ Content-Type: application/json
 {
   "nome": "Gabriel Arcanjo Santos de Camargo"
 }
+
+### Buscar todos os grupos
+GET http://localhost:8080/grupos?status=EM_ANDAMENTO
+Content-Type: application/json
+
+
+### Buscar um grupos
+GET http://localhost:8080/grupos/1
+Content-Type: application/json
+
+### Buscar cotas por grupo
+GET http://localhost:8080/grupos/1/cotas
+Content-Type: application/json
+
+

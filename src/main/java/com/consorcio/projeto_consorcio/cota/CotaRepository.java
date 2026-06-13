@@ -15,6 +15,8 @@ public interface CotaRepository extends JpaRepository<Cota, Long> {
     // traz todas as cotas ativas de um grupo
     List<Cota> findByGrupoConsorcioIdAndStatus(Long grupoId, StatusCota status);
 
+    List<Cota> findByGrupoConsorcioId(Long grupoId);
+
     //conta quantas cotas existem em um grupo
     long countBygrupoConsorcioId(Long grupoId);
 }

@@ -1,9 +1,11 @@
 package com.consorcio.projeto_consorcio.consorcio.dto;
 
-public record CriarGrupoConsorcioResponseDTO(
+import com.consorcio.projeto_consorcio.consorcio.enums.StatusGrupo;
+
+public record GrupoConsorcioResponseDTO(
         Long grupoId,
         String Nome,
-        String nomeStatus,
+        StatusGrupo nomeStatus,
         Integer vagasDisponiveis
 ){
 }

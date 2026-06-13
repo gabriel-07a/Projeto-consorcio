@@ -32,7 +32,7 @@ public class GrupoAbertoState implements GrupoState{
 
     @Override
     public void encerrarConsorcio() {
-
+        throw new RuntimeException("Erro: Esse grupo não está em andamento!");
     }
 
     @Override

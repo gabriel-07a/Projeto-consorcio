@@ -3,11 +3,16 @@ package com.consorcio.projeto_consorcio.consorcio;
 import com.consorcio.projeto_consorcio.consorcio.dto.ApagarGrupoConsorcioResponseDTO;
 import com.consorcio.projeto_consorcio.consorcio.dto.CriarGrupoConsorcioRequestDTO;
 import com.consorcio.projeto_consorcio.consorcio.dto.CriarGrupoConsorcioResponseDTO;
+import com.consorcio.projeto_consorcio.consorcio.dto.GrupoConsorcioResponseDTO;
 import com.consorcio.projeto_consorcio.consorcio.enums.StatusGrupo;
 import com.consorcio.projeto_consorcio.consorcio.enums.TipoLance;
+import com.consorcio.projeto_consorcio.cota.Cota;
 import com.consorcio.projeto_consorcio.cota.CotaRepository;
+import com.consorcio.projeto_consorcio.cota.dto.CotaResponseDTO;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class GrupoConsorcioService {
@@ -58,6 +63,55 @@ public class GrupoConsorcioService {
         );
     }
 
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
+    public GrupoConsorcioResponseDTO buscarGrupo(Long id){
+        GrupoConsorcio grupo = grupoConsorcioRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Erro: Grupo não encontrado!"));
+
+        return new GrupoConsorcioResponseDTO(
+                grupo.getId(),
+                grupo.getNome(),
+                grupo.getStatus(),
+                grupo.getVagasMaximas()
+        );
+    }
+
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
+    public List<CotaResponseDTO> listarCotas(Long grupoId){
+        if(!grupoConsorcioRepository.existsById(grupoId)) throw new RuntimeException("Erro: Este grupo não existe!");
+
+        List<Cota> cotasRetornadas = cotaRepository.findByGrupoConsorcioId(grupoId);
+
+        return cotasRetornadas.stream()
+                .map(cota -> new CotaResponseDTO(
+                        cota.getNumeroCota(),
+                        cota.getUsuario().getNome(),
+                        cota.getGrupoConsorcio().getNome()
+                ))
+                .toList();
+
+    }
+
+    @Transactional
+    public List<GrupoConsorcioResponseDTO> buscarGrupos(StatusGrupo status){
+        List<GrupoConsorcio> gruposRetornados;
+
+        if(status == null){
+            gruposRetornados = grupoConsorcioRepository.findAll();
+        }else{
+            gruposRetornados = grupoConsorcioRepository.findByStatus(status);
+        }
+
+        return gruposRetornados.stream()
+                .map(grupo -> new GrupoConsorcioResponseDTO(
+                        grupo.getId(),
+                        grupo.getNome(),
+                        grupo.getStatus(),
+                        grupo.getVagasMaximas()
+                ))
+                .toList();
+                //depois adicionar mais campos do dto e aqui
+    }
 
     @Transactional
     public String iniciarGrupo(Long grupoId){
@@ -70,6 +124,17 @@ public class GrupoConsorcioService {
         grupoConsorcioRepository.save(grupoConsorcio);
 
         return "Grupo: " + grupoConsorcio.getNome()+ " iniciado com suscesso!";
+
+    }
+
+    @org.springframework.transaction.annotation.Transactional
+    public String encerrarGrupo(Long grupoId){
+        GrupoConsorcio grupo = grupoConsorcioRepository.findById(grupoId)
+                .orElseThrow(() -> new RuntimeException("Erro: Essa grupo não existe!"));
+        grupo.getState().encerrarConsorcio();
+        grupo.setStatus(StatusGrupo.ENCERRADO);
+        grupoConsorcioRepository.save(grupo);
+        return "Grupo: " + grupo.getNome() + " encerrado com sucesso!";
 
     }
 
