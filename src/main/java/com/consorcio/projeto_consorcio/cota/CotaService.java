@@ -3,6 +3,7 @@ package com.consorcio.projeto_consorcio.cota;
 import com.consorcio.projeto_consorcio.consorcio.GrupoConsorcio;
 import com.consorcio.projeto_consorcio.consorcio.GrupoConsorcioRepository;
 
+import com.consorcio.projeto_consorcio.core.exception.EntidadeNaoEncontradaException;
 import com.consorcio.projeto_consorcio.cota.dto.CotaResponseDTO;
 import com.consorcio.projeto_consorcio.cota.enums.StatusCota;
 import com.consorcio.projeto_consorcio.usuario.Usuario;
@@ -26,9 +27,9 @@ public class CotaService {
     @Transactional // garante que ser der erro o banco defaz tudo
     public CotaResponseDTO comprarCota(Long usuarioId, Long grupoId){
         Usuario usuario = usuarioRepository.findById(usuarioId)
-                .orElseThrow(() -> new RuntimeException("Erro: Usuário não cadastrado no sistema!"));
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("Erro: Usuário não cadastrado no sistema!"));
         GrupoConsorcio grupoConsorcio = grupoConsorcioRepository.findById(grupoId)
-                .orElseThrow(() -> new RuntimeException("Erro: Grupo de Consórcio não encontrado no sistema!"));
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("Erro: Grupo de Consórcio não encontrado no sistema!"));
 
         //chama a interface de grupoState, e se for grupoaberto ele adiciona
         //se não ele lança uma exceção
@@ -59,7 +60,7 @@ public class CotaService {
     public CotaResponseDTO cancelarCota(Long cotaId){
         //primeiro busca a cota pelo id
         Cota cota = cotaRepository.findById(cotaId)
-                .orElseThrow(() -> new RuntimeException("Erro: Cota não encontrada!"));
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("Erro: Cota não encontrada!"));
         //depois busca o grupo asociado aquela cota
         GrupoConsorcio grupoConsorcio = cota.getGrupoConsorcio();
         //valida o cancelamento

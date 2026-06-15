@@ -1,5 +1,7 @@
 package com.consorcio.projeto_consorcio.usuario;
 
+import com.consorcio.projeto_consorcio.core.exception.EntidadeNaoEncontradaException;
+import com.consorcio.projeto_consorcio.core.exception.RegraDeNegocioException;
 import com.consorcio.projeto_consorcio.usuario.dto.AtualizaUsuarioRequestDTO;
 import com.consorcio.projeto_consorcio.usuario.dto.UsuarioRequestDTO;
 import com.consorcio.projeto_consorcio.usuario.dto.UsuarioResponseDTO;
@@ -26,9 +28,9 @@ public class UsuarioService {
         boolean carteiraExiste = usuarioRepository.existsByCarteiraWeb3(dto.carteiraWeb3());
 
         //verificações de duplicidade de cadastros
-        if(emailExiste) throw new RuntimeException("Erro: Email já usado por outro usuário!");
-        if(taxIdExiste) throw new RuntimeException("Erro: Id já usado no sistema!");
-        if(carteiraExiste) throw new RuntimeException("Erro: Essa carteira já está sendo utilizada!");
+        if(emailExiste) throw new RegraDeNegocioException("Erro: Email já usado por outro usuário!");
+        if(taxIdExiste) throw new RegraDeNegocioException("Erro: Id já usado no sistema!");
+        if(carteiraExiste) throw new RegraDeNegocioException("Erro: Essa carteira já está sendo utilizada!");
 
         //traduzindo dto para a entidade
         Usuario usuario = new Usuario();
@@ -61,7 +63,7 @@ public class UsuarioService {
     @Transactional
     public UsuarioResponseDTO atualizaUsuario(Long id, AtualizaUsuarioRequestDTO dadosAtualizados){
         Usuario usuario = usuarioRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Erro: Esse usuário não existe!"));
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("Erro: Esse usuário não existe!"));
 
         if(dadosAtualizados.nome() != null && !dadosAtualizados.nome().isBlank()){
             usuario.setNome(dadosAtualizados.nome());
@@ -83,7 +85,7 @@ public class UsuarioService {
 
     public UsuarioResponseDTO buscaUsuario(Long id){
         Usuario usuarioEncontrado =  usuarioRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Erro: Esse usuário não existe!"));
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("Erro: Esse usuário não existe!"));
 
         return new UsuarioResponseDTO(
                 usuarioEncontrado.getId(),
@@ -95,7 +97,7 @@ public class UsuarioService {
     }
 
     public void deletarUsuario(Long id){
-        if(!usuarioRepository.existsById(id)) throw new RuntimeException("Erro: Esse usuário não existe!");
+        if(!usuarioRepository.existsById(id)) throw new EntidadeNaoEncontradaException("Erro: Esse usuário não existe!");
 
         usuarioRepository.deleteById(id);//trocar isso, não posso deletar nenhum registro
     }

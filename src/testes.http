@@ -48,7 +48,7 @@ Content-Type: application/json
 }
 
 ### sorteia
-POST http://localhost:8080/assembleia/grupos/1/sortear
+POST http://localhost:8080/assembleia/grupos/2/sortear
 Content-Type: application/json
 
 
@@ -80,11 +80,11 @@ Content-Type: application/json
 
 
 ### Buscar um grupos
-GET http://localhost:8080/grupos/1
+GET http://localhost:8080/grupos/2
 Content-Type: application/json
 
 ### Buscar cotas por grupo
-GET http://localhost:8080/grupos/1/cotas
+GET http://localhost:8080/grupos/3/cotas
 Content-Type: application/json
 
 

@@ -1,6 +1,7 @@
 package com.consorcio.projeto_consorcio.consorcio.state;
 
 import com.consorcio.projeto_consorcio.consorcio.GrupoConsorcio;
+import com.consorcio.projeto_consorcio.core.exception.RegraDeNegocioException;
 import com.consorcio.projeto_consorcio.cota.Cota;
 import com.consorcio.projeto_consorcio.cota.enums.StatusCota;
 import com.consorcio.projeto_consorcio.usuario.Usuario;
@@ -8,12 +9,12 @@ import com.consorcio.projeto_consorcio.usuario.Usuario;
 public class GrupoEmAndamentoState implements GrupoState{
     @Override
     public void validarNovoParticipante(GrupoConsorcio grupoConsorcio, Usuario usuario) {
-        throw new RuntimeException("Erro: O grupo já começou. Não é possível entrar num consórcio em andamento.");
+        throw new RegraDeNegocioException("Erro: O grupo já começou. Não é possível entrar num consórcio em andamento.");
     }
 
     @Override
     public void validarCancelamento(GrupoConsorcio grupoConsorcio, Cota cota) {
-        if(cota.getStatus() == StatusCota.CONTEMPLADA) throw new RuntimeException("Erro: Uma cota contemplada não pode ser cancelada!");
+        if(cota.getStatus() == StatusCota.CONTEMPLADA) throw new RegraDeNegocioException("Erro: Uma cota contemplada não pode ser cancelada!");
 
     }
 
@@ -24,7 +25,7 @@ public class GrupoEmAndamentoState implements GrupoState{
 
     @Override
     public void comecarConsorcio() {
-        throw new RuntimeException("Erro: Esse grupo já está em andamento!");
+        throw new RegraDeNegocioException("Erro: Esse grupo já está em andamento!");
     }
 
     @Override
@@ -34,7 +35,7 @@ public class GrupoEmAndamentoState implements GrupoState{
 
     @Override
     public void validaExclusaoDeConsorcio(GrupoConsorcio grupoConsorcio, String EnderecoContrato) {
-        throw new RuntimeException("Erro: Um grupo em andamento não pode ser apagado!");
+        throw new RegraDeNegocioException("Erro: Um grupo em andamento não pode ser apagado!");
     }
 
     @Override

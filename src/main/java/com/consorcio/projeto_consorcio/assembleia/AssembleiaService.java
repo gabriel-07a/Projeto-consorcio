@@ -4,6 +4,7 @@ import com.consorcio.projeto_consorcio.assembleia.strategy.ContemplacaoStrategy;
 import com.consorcio.projeto_consorcio.assembleia.strategy.SorteioStrategy;
 import com.consorcio.projeto_consorcio.consorcio.GrupoConsorcio;
 import com.consorcio.projeto_consorcio.consorcio.GrupoConsorcioRepository;
+import com.consorcio.projeto_consorcio.core.exception.EntidadeNaoEncontradaException;
 import com.consorcio.projeto_consorcio.cota.Cota;
 import com.consorcio.projeto_consorcio.cota.CotaRepository;
 import com.consorcio.projeto_consorcio.cota.enums.StatusCota;
@@ -25,7 +26,7 @@ public class AssembleiaService {
     @Transactional
     public Cota realizarSorteio(Long grupoId){
         GrupoConsorcio grupoConsorcio = grupoConsorcioRepository.findById(grupoId)
-                .orElseThrow(() -> new RuntimeException("Erro: Grupo não encontrado!"));
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("Erro: Grupo não encontrado!"));
 
         //valida o sorteio
         grupoConsorcio.getState().validarSorteio();

@@ -6,6 +6,8 @@ import com.consorcio.projeto_consorcio.consorcio.dto.CriarGrupoConsorcioResponse
 import com.consorcio.projeto_consorcio.consorcio.dto.GrupoConsorcioResponseDTO;
 import com.consorcio.projeto_consorcio.consorcio.enums.StatusGrupo;
 import com.consorcio.projeto_consorcio.consorcio.enums.TipoLance;
+import com.consorcio.projeto_consorcio.core.exception.EntidadeNaoEncontradaException;
+import com.consorcio.projeto_consorcio.core.exception.RegraDeNegocioException;
 import com.consorcio.projeto_consorcio.cota.Cota;
 import com.consorcio.projeto_consorcio.cota.CotaRepository;
 import com.consorcio.projeto_consorcio.cota.dto.CotaResponseDTO;
@@ -27,18 +29,18 @@ public class GrupoConsorcioService {
     @Transactional
     public CriarGrupoConsorcioResponseDTO criarNovoGrupoConsorcio(CriarGrupoConsorcioRequestDTO requestDTO){
         if(requestDTO.vagasMaximas() < requestDTO.duracaoMeses()){
-            throw new RuntimeException("Erro: A duração do Grupo não pode ser maior que a quantidade de vagas maximas!");
+            throw new RegraDeNegocioException("Erro: A duração do Grupo não pode ser maior que a quantidade de vagas maximas!");
         }
 
         TipoLance tipoLanceFinal;
         if(requestDTO.aceitaLances()){
-            if(requestDTO.tipoLanceAdicional() == null) throw new RuntimeException("Erro: Se o grupo aceita lances o campo Tipo Lance Adicional não pode ser nulo!");
+            if(requestDTO.tipoLanceAdicional() == null) throw new RegraDeNegocioException("Erro: Se o grupo aceita lances o campo Tipo Lance Adicional não pode ser nulo!");
             tipoLanceFinal = requestDTO.tipoLanceAdicional();
         }else{
             tipoLanceFinal = TipoLance.NENHUM;
         }
 
-        if(grupoConsorcioRepository.existsByNome(requestDTO.nome())) throw new RuntimeException("Erro: Esse nome já foi usado!");
+        if(grupoConsorcioRepository.existsByNome(requestDTO.nome())) throw new RegraDeNegocioException("Erro: Esse nome já foi usado!");
 
         GrupoConsorcio novoGrupo = new GrupoConsorcio();
         novoGrupo.setNome(requestDTO.nome());
@@ -66,7 +68,7 @@ public class GrupoConsorcioService {
     @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public GrupoConsorcioResponseDTO buscarGrupo(Long id){
         GrupoConsorcio grupo = grupoConsorcioRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Erro: Grupo não encontrado!"));
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("Erro: Grupo não encontrado!"));
 
         return new GrupoConsorcioResponseDTO(
                 grupo.getId(),
@@ -78,7 +80,7 @@ public class GrupoConsorcioService {
 
     @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public List<CotaResponseDTO> listarCotas(Long grupoId){
-        if(!grupoConsorcioRepository.existsById(grupoId)) throw new RuntimeException("Erro: Este grupo não existe!");
+        if(!grupoConsorcioRepository.existsById(grupoId)) throw new EntidadeNaoEncontradaException("Erro: Este grupo não existe!");
 
         List<Cota> cotasRetornadas = cotaRepository.findByGrupoConsorcioId(grupoId);
 
@@ -116,7 +118,7 @@ public class GrupoConsorcioService {
     @Transactional
     public String iniciarGrupo(Long grupoId){
         GrupoConsorcio grupoConsorcio = grupoConsorcioRepository.findById(grupoId)
-                .orElseThrow(() -> new RuntimeException("Erro: Essa grupo não existe!"));
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("Erro: Essa grupo não existe!"));
         grupoConsorcio.getState().comecarConsorcio();
 
         grupoConsorcio.setStatus(StatusGrupo.EM_ANDAMENTO);
@@ -130,7 +132,7 @@ public class GrupoConsorcioService {
     @org.springframework.transaction.annotation.Transactional
     public String encerrarGrupo(Long grupoId){
         GrupoConsorcio grupo = grupoConsorcioRepository.findById(grupoId)
-                .orElseThrow(() -> new RuntimeException("Erro: Essa grupo não existe!"));
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("Erro: Essa grupo não existe!"));
         grupo.getState().encerrarConsorcio();
         grupo.setStatus(StatusGrupo.ENCERRADO);
         grupoConsorcioRepository.save(grupo);
@@ -142,7 +144,7 @@ public class GrupoConsorcioService {
     @Transactional
     public ApagarGrupoConsorcioResponseDTO apagarGrupoConsorcio(Long grupoId, String enderecoContrato){
         GrupoConsorcio grupoConsorcio = grupoConsorcioRepository.findById(grupoId)
-                .orElseThrow(() -> new RuntimeException("Erro: Esse grupo não existe!"));
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("Erro: Esse grupo não existe!"));
 
         grupoConsorcio.getState().validaExclusaoDeConsorcio(grupoConsorcio, enderecoContrato);
 

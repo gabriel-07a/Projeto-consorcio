@@ -6,10 +6,7 @@ import com.consorcio.projeto_consorcio.cota.dto.CotaResponseDTO;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/cotas")
@@ -30,9 +27,9 @@ public class CotaController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @PostMapping("/cancelar")
-    public ResponseEntity<CotaResponseDTO> cancelarCota(@RequestBody @Valid CancelarCotaRequestDTO requestDTO){
-        CotaResponseDTO response = cotaService.cancelarCota(requestDTO.cotaid());
+    @PatchMapping("/{id}/cancelar")
+    public ResponseEntity<CotaResponseDTO> cancelarCota(@PathVariable Long id){
+        CotaResponseDTO response = cotaService.cancelarCota(id);
 
         return ResponseEntity.ok(response);
     }
