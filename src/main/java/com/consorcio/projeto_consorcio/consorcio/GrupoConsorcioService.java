@@ -11,6 +11,8 @@ import com.consorcio.projeto_consorcio.core.exception.RegraDeNegocioException;
 import com.consorcio.projeto_consorcio.cota.Cota;
 import com.consorcio.projeto_consorcio.cota.CotaRepository;
 import com.consorcio.projeto_consorcio.cota.dto.CotaResponseDTO;
+import com.consorcio.projeto_consorcio.pagamentos.PagamentoRepository;
+import com.consorcio.projeto_consorcio.pagamentos.PagamentoService;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -20,10 +22,12 @@ import java.util.List;
 public class GrupoConsorcioService {
     private final GrupoConsorcioRepository grupoConsorcioRepository;
     private final CotaRepository cotaRepository;
+    private final PagamentoService pagamentoService;
 
-    public GrupoConsorcioService(GrupoConsorcioRepository grupoConsorcioRepository, CotaRepository cotaRepository){
+    public GrupoConsorcioService(GrupoConsorcioRepository grupoConsorcioRepository, CotaRepository cotaRepository, PagamentoService pagamentoService){
         this.grupoConsorcioRepository = grupoConsorcioRepository;
         this.cotaRepository = cotaRepository;
+        this.pagamentoService = pagamentoService;
     }
 
     @Transactional
@@ -86,6 +90,7 @@ public class GrupoConsorcioService {
 
         return cotasRetornadas.stream()
                 .map(cota -> new CotaResponseDTO(
+                        cota.getId(),
                         cota.getNumeroCota(),
                         cota.getUsuario().getNome(),
                         cota.getGrupoConsorcio().getNome()
@@ -124,6 +129,8 @@ public class GrupoConsorcioService {
         grupoConsorcio.setStatus(StatusGrupo.EM_ANDAMENTO);
 
         grupoConsorcioRepository.save(grupoConsorcio);
+
+        pagamentoService.criarParcelas(grupoConsorcio);//para gerar as parcelas de todos
 
         return "Grupo: " + grupoConsorcio.getNome()+ " iniciado com suscesso!";
 

@@ -43,8 +43,8 @@ POST http://localhost:8080/cotas/comprar
 Content-Type: application/json
 
 {
-  "usuarioId": 2,
-  "grupoId": 1
+  "usuarioId": 1,
+  "grupoId": 2
 }
 
 ### sorteia
@@ -53,8 +53,8 @@ Content-Type: application/json
 
 
 
-###cria outro
-POST http://localhost:8080/grupos/iniciar/1
+### inicia o grupo
+PATCH http://localhost:8080/grupos/iniciar/2
 Content-Type: application/json
 
 
@@ -75,7 +75,7 @@ Content-Type: application/json
 }
 
 ### Buscar todos os grupos
-GET http://localhost:8080/grupos?status=EM_ANDAMENTO
+GET http://localhost:8080/grupos
 Content-Type: application/json
 
 
@@ -84,7 +84,9 @@ GET http://localhost:8080/grupos/2
 Content-Type: application/json
 
 ### Buscar cotas por grupo
-GET http://localhost:8080/grupos/3/cotas
+GET http://localhost:8080/grupos/2/cotas
 Content-Type: application/json
 
-
+### Buscar fatura por cota
+GET http://localhost:8080/pagamentos/cota/4
+Content-Type: application/json

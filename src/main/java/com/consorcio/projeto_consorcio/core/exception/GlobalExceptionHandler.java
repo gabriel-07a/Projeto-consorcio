@@ -88,6 +88,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ExceptionResponseDTO> exceptionsEmGeral(Exception exception, HttpServletRequest request){
+        exception.printStackTrace();
         ExceptionResponseDTO erro = new ExceptionResponseDTO(
                 Instant.now(),
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),

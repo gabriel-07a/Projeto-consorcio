@@ -3,9 +3,11 @@ package com.consorcio.projeto_consorcio.cota;
 import com.consorcio.projeto_consorcio.consorcio.GrupoConsorcio;
 import com.consorcio.projeto_consorcio.consorcio.GrupoConsorcioRepository;
 
+import com.consorcio.projeto_consorcio.consorcio.enums.StatusGrupo;
 import com.consorcio.projeto_consorcio.core.exception.EntidadeNaoEncontradaException;
 import com.consorcio.projeto_consorcio.cota.dto.CotaResponseDTO;
 import com.consorcio.projeto_consorcio.cota.enums.StatusCota;
+import com.consorcio.projeto_consorcio.pagamentos.PagamentoService;
 import com.consorcio.projeto_consorcio.usuario.Usuario;
 import com.consorcio.projeto_consorcio.usuario.UsuarioRepository;
 import org.springframework.stereotype.Service;
@@ -13,15 +15,17 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class CotaService {
+    private final PagamentoService pagamentoService;
     private CotaRepository cotaRepository;
     private UsuarioRepository usuarioRepository;
     private GrupoConsorcioRepository grupoConsorcioRepository;
 
     //injeção de dependencias via construtor
-    public CotaService(CotaRepository cotaRepository, UsuarioRepository usuarioRepository, GrupoConsorcioRepository grupoConsorcioRepository){
+    public CotaService(CotaRepository cotaRepository, UsuarioRepository usuarioRepository, GrupoConsorcioRepository grupoConsorcioRepository, PagamentoService pagamentoService){
         this.cotaRepository = cotaRepository;
         this.usuarioRepository = usuarioRepository;
         this.grupoConsorcioRepository = grupoConsorcioRepository;
+        this.pagamentoService = pagamentoService;
     }
 
     @Transactional // garante que ser der erro o banco defaz tudo
@@ -34,6 +38,8 @@ public class CotaService {
         //chama a interface de grupoState, e se for grupoaberto ele adiciona
         //se não ele lança uma exceção
         grupoConsorcio.getState().validarNovoParticipante(grupoConsorcio, usuario);
+        //se o state mudar o status para em andamento eu tenho que chamar esse método para criar as parcelas de todos os participanetes
+        if(grupoConsorcio.getStatus() == StatusGrupo.EM_ANDAMENTO) pagamentoService.criarParcelas(grupoConsorcio);
 
         //pega o cotaRepository quantas cota o grupo tem atualmente
         long totalCotas = cotaRepository.countBygrupoConsorcioId(grupoConsorcio.getId());
@@ -50,6 +56,7 @@ public class CotaService {
         grupoConsorcioRepository.save(grupoConsorcio);
 
         return new CotaResponseDTO(
+                novaCota.getId(),
                 novaCota.getNumeroCota(),
                 novaCota.getUsuario().getNome(),
                 novaCota.getGrupoConsorcio().getNome()
@@ -70,6 +77,7 @@ public class CotaService {
         cotaRepository.save(cota);
 
         return new CotaResponseDTO(
+                cota.getId(),
                 cota.getNumeroCota(),
                 cota.getUsuario().getNome(),
                 cota.getGrupoConsorcio().getNome()
