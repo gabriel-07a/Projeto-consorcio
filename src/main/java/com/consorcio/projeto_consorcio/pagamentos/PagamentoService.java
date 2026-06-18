@@ -8,6 +8,7 @@ import com.consorcio.projeto_consorcio.cota.Cota;
 import com.consorcio.projeto_consorcio.cota.CotaRepository;
 import com.consorcio.projeto_consorcio.pagamentos.dto.PagamentoResponseDTO;
 import com.consorcio.projeto_consorcio.pagamentos.enums.StatusPagamento;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -97,5 +98,17 @@ public class PagamentoService {
         pagamento.setHashTransacao(hashTransacao);
         pagamento.setDataPagamento(LocalDateTime.now());
         return "Sucesso! Parcela " + pagamento.getNumeroParcela() + " paga e registrada na Blockchain!";
+    }
+
+
+    // Esta expressao significa que vai ser ativado todo dia as 1 da manha
+    @Scheduled(cron = "0 0 1 * * *")
+    @Transactional
+    public void fiscalizarParcelasAtrasadas() {
+        LocalDate hoje = LocalDate.now();
+
+        int quantidadeAtualizada = pagamentoRepository.atualizarStatusParcelasVencidas(hoje);
+
+        // devolvo uma mensagem de execução ("Rotina de fiscalização concluída: {} parcelas marcadas como ATRASADAS no dia {}.", quantidadeAtualizada, hoje);
     }
 }

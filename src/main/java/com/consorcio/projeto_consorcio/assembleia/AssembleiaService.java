@@ -11,16 +11,19 @@ import com.consorcio.projeto_consorcio.cota.enums.StatusCota;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
 public class AssembleiaService {
     private final GrupoConsorcioRepository grupoConsorcioRepository;
     private final CotaRepository cotaRepository;
+    private final AssembleiaRepository assembleiaRepository;
 
-    public AssembleiaService(GrupoConsorcioRepository grupoConsorcioRepository, CotaRepository cotaRepository){
+    public AssembleiaService(GrupoConsorcioRepository grupoConsorcioRepository, CotaRepository cotaRepository, AssembleiaRepository assembleiaRepository){
         this.grupoConsorcioRepository = grupoConsorcioRepository;
         this.cotaRepository = cotaRepository;
+        this.assembleiaRepository = assembleiaRepository;
     }
 
     @Transactional
@@ -39,6 +42,13 @@ public class AssembleiaService {
         cotaVencedora.setStatus(StatusCota.CONTEMPLADA);
         //salva no banco
         cotaRepository.save(cotaVencedora);
+        //salva dados da assembleia
+        Assembleia registroDoSorteio = new Assembleia();
+        registroDoSorteio.setGrupo(grupoConsorcio);
+        registroDoSorteio.setCotaContemplada(cotaVencedora);
+        registroDoSorteio.setDataAssembleia(LocalDate.now());
+        assembleiaRepository.save(registroDoSorteio);
+
         System.out.println("Parabéns! A cota número " + cotaVencedora.getNumeroCota() + " foi contemplada!");
         return cotaVencedora;
     }

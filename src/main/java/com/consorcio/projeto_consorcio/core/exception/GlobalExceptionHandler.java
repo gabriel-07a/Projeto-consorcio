@@ -5,6 +5,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -86,6 +87,20 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(erro);
     }
 
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<ExceptionResponseDTO> metodoHttpNaoSuportado(HttpRequestMethodNotSupportedException exception, HttpServletRequest request){
+        ExceptionResponseDTO erro = new ExceptionResponseDTO(
+                Instant.now(),
+                HttpStatus.METHOD_NOT_ALLOWED.value(),
+                "Método HTTP não permitido",
+                "O endpoint acessado não suporta o método " + request.getMethod() + ".",
+                request.getRequestURI()
+        );
+
+        return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).body(erro);
+    }
+    //BlockchainUnavailableException mais pra frente
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ExceptionResponseDTO> exceptionsEmGeral(Exception exception, HttpServletRequest request){
         exception.printStackTrace();
@@ -101,6 +116,6 @@ public class GlobalExceptionHandler {
     }
 
 
-    //BlockchainUnavailableException mais pra frente
+
 
 }
