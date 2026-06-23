@@ -4,6 +4,9 @@ import com.consorcio.projeto_consorcio.cota.Cota;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,6 +15,8 @@ import java.util.List;
 @Table(name = "usuarios")
 @Getter
 @Setter
+@SQLDelete(sql = "UPDATE usuarios SET ativo = false WHERE id = ?")
+@SQLRestriction("ativo = true")
 public class Usuario {
 
     @Id
@@ -21,7 +26,7 @@ public class Usuario {
     @Column(nullable = false, length = 100)
     private String nome;
 
-    @Column(nullable = false, unique = true, length = 100)
+    @Column(nullable = false, length = 100)
     private String email;
 
     @Column(name = "country_code", nullable = false, length = 2)
@@ -33,18 +38,16 @@ public class Usuario {
     @Column(name = "senha_hash", nullable = false, length = 255)
     private String senhaHash;
 
-    @Column(name = "carteira_web3", nullable = false, unique = true, length = 42)
+    @Column(name = "carteira_web3", nullable = false, length = 42)
     private String carteiraWeb3;
+
+    @Column(nullable = false)
+    private boolean ativo = true;
 
     @Column(name = "inserted_at", insertable = false, updatable = false)
     private LocalDateTime insertedAt;
 
-
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
-    //esse mappedBy diz ao hibernate para não criar uma tabela nova e sim olhar no atributo usuario
-    //da classe cota, e é ele que manda na relação e tem a chave estrangeira
-    //server para o hibernate apagar todas as cotas se o grupo for excluido
-    //o orphanremoval serve para que se vc tirar uma conta da lista do usuario, ele entende que a conta ficou
-    //órfâ e apaga no banco de dados
-    private List<Cota> cotas = new ArrayList<>(); //esse arraylist é uma boa prática para instanciar uma lsita vazia
+    private List<Cota> cotas = new ArrayList<>();
 }
+

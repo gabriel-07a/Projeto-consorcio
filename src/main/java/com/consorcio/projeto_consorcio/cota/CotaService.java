@@ -42,9 +42,9 @@ public class CotaService {
         if(grupoConsorcio.getStatus() == StatusGrupo.EM_ANDAMENTO) pagamentoService.criarParcelas(grupoConsorcio);
 
         //pega o cotaRepository quantas cota o grupo tem atualmente
-        long totalCotas = cotaRepository.countBygrupoConsorcioId(grupoConsorcio.getId());
+        int totalCotas = cotaRepository.countBygrupoConsorcioId(grupoConsorcio.getId());
         //pega a quantidade e incrementa
-        int numeroDeCotasNovo = (int) totalCotas++;
+        int numeroDeCotasNovo = totalCotas + 1;
 
         Cota novaCota = new Cota();
         novaCota.setUsuario(usuario);

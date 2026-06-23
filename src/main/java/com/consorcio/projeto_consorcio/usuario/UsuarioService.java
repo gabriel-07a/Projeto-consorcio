@@ -99,6 +99,8 @@ public class UsuarioService {
     public void deletarUsuario(Long id){
         if(!usuarioRepository.existsById(id)) throw new EntidadeNaoEncontradaException("Erro: Esse usuário não existe!");
 
-        usuarioRepository.deleteById(id);//trocar isso, não posso deletar nenhum registro
+        // Como adicionamos @SQLDelete e @SQLRestriction no Usuario,
+        // este deleteById executa uma exclusão lógica (Soft Delete) no banco.
+        usuarioRepository.deleteById(id);
     }
 }

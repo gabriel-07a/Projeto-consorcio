@@ -34,3 +34,34 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Keys and Keystores ###
+*.jks
+*.keystore
+*.p12
+*.pem
+*.key
+*.pkcs12
+
+### IntelliJ Compiler ###
+out/
+
+### Logs ###
+*.log
+logs/
+hs_err_pid*
+replay_pid*
+
+### OS Files ###
+.DS_Store
+.DS_Store?
+._*
+Thumbs.db
+desktop.ini
+
+### Environment Files ###
+.env
+.env.local
+
+### Solidity Dependencies ###
+src/main/resources/solidity/openzeppelin/

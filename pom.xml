@@ -142,6 +142,27 @@
 					</execution>
 				</executions>
 			</plugin>
+			<plugin>
+				<groupId>org.web3j</groupId>
+				<artifactId>web3j-maven-plugin</artifactId>
+				<version>4.10.3</version>
+				<configuration>
+					<packageName>com.consorcio.projeto_consorcio.blockchain.wrapper</packageName>
+					<sourceDestination>C:/Users/luzin/IdeaProjects/Projeto-consorcio/src/main/java</sourceDestination>
+					<soliditySourceFiles>
+						<directory>${project.basedir}/src/main/resources/solidity</directory>
+						<includes>
+							<include>ConsorcioGrupo.sol</include>
+						</includes>
+					</soliditySourceFiles>
+					<abiSourceFiles>
+						<directory>${project.basedir}/src/main/resources/solidity</directory>
+						<includes>
+							<include>ignorar_scans_de_json_aqui.json</include>
+						</includes>
+					</abiSourceFiles>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
 
