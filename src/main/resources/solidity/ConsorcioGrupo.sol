@@ -290,6 +290,16 @@ contract ConsortiumGroup is AccessControl, ReentrancyGuard, Pausable {
                p.debt.overdueInstallments == 0 &&
                !finished;
     }
+    // Retorna a lista completa de todas as contemplações para o Java listar no painel
+    function getContemplations() external view returns (Contemplation[] memory) {
+        return contemplations;
+    }
+
+    // Retorna detalhadamente a situação de inadimplência de uma carteira específica
+    function getParticipantDebt(address participant) external view returns (uint256 overdue, uint256 penalty) {
+        Participant storage p = participants[participant];
+        return (p.debt.overdueInstallments, p.debt.accumulatedPenalty);
+    }
 
     // Função executada exclusivamente pelo Java para pagar o prémio (Ex: 50.000 USDT) direto na carteira do vencedor.
     function contemplateWinner(address winner, ContemplationType cType) external onlyRole(BACKEND_ROLE) nonReentrant {

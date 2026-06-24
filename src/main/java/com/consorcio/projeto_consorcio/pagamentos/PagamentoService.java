@@ -8,6 +8,8 @@ import com.consorcio.projeto_consorcio.cota.Cota;
 import com.consorcio.projeto_consorcio.cota.CotaRepository;
 import com.consorcio.projeto_consorcio.pagamentos.dto.PagamentoResponseDTO;
 import com.consorcio.projeto_consorcio.pagamentos.enums.StatusPagamento;
+import com.consorcio.projeto_consorcio.usuario.Usuario;
+import com.consorcio.projeto_consorcio.usuario.UsuarioRepository;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,11 +26,13 @@ public class PagamentoService {
     private final GrupoConsorcioRepository grupoConsorcioRepository;
     private final CotaRepository cotaRepository;
     private final PagamentoRepository pagamentoRepository;
+    private final UsuarioRepository usuarioRepository;
 
-    public PagamentoService(CotaRepository cotaRepository, GrupoConsorcioRepository grupoConsorcioRepository, PagamentoRepository pagamentoRepository){
+    public PagamentoService(CotaRepository cotaRepository, GrupoConsorcioRepository grupoConsorcioRepository, PagamentoRepository pagamentoRepository, UsuarioRepository usuarioRepository){
         this.cotaRepository = cotaRepository;
         this.grupoConsorcioRepository = grupoConsorcioRepository;
         this.pagamentoRepository = pagamentoRepository;
+        this.usuarioRepository = usuarioRepository;
     }
 
     @Transactional
@@ -99,6 +103,23 @@ public class PagamentoService {
         pagamento.setDataPagamento(LocalDateTime.now());
         return "Sucesso! Parcela " + pagamento.getNumeroParcela() + " paga e registrada na Blockchain!";
     }
+
+    @Transactional
+    public void confirmarPagamentoPeloBlockchain(String carteiraCliente, Long mesCiclo, String hashTransacao){
+        Usuario usuario = usuarioRepository.findByCarteiraWeb3IgnoreCase(carteiraCliente)
+                .orElseThrow(() -> new RegraDeNegocioException("Erro: Evento de pagamento identificado de uma carteira não cadastrada: " + carteiraCliente));
+
+        Pagamento pagamento = pagamentoRepository.buscarParcelaPendente(usuario.getId(), mesCiclo.intValue())
+                .orElseThrow(() -> new RegraDeNegocioException("Erro: Parcela não encontrada para esse usuário!"));
+
+        pagamento.setStatusDoPagamento(StatusPagamento.PAGO);
+        pagamento.setHashTransacao(hashTransacao);
+        pagamento.setDataPagamento(LocalDateTime.now());
+
+        pagamentoRepository.save(pagamento);
+    }
+
+
 
 
     // Esta expressao significa que vai ser ativado todo dia as 1 da manha
