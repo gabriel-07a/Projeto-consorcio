@@ -5,12 +5,13 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface CotaRepository extends JpaRepository<Cota, Long> {
 
     //traz todas as cotas que um usuário comprou
-    List<Cota> findByUsuarioId(Long usuarioId);
+    Optional<Cota> findByUsuarioId(Long usuarioId);
 
     // traz todas as cotas ativas de um grupo
     List<Cota> findByGrupoConsorcioIdAndStatus(Long grupoId, StatusCota status);

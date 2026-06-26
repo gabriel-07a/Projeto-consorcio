@@ -2,6 +2,7 @@ package com.consorcio.projeto_consorcio.blockchain;
 
 import com.consorcio.projeto_consorcio.blockchain.wrapper.ConsortiumGroup;
 import com.consorcio.projeto_consorcio.cota.CotaService;
+import com.consorcio.projeto_consorcio.lances.LanceService;
 import com.consorcio.projeto_consorcio.pagamentos.PagamentoService;
 import com.consorcio.projeto_consorcio.usuario.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,8 @@ import org.web3j.crypto.Credentials;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.DefaultBlockParameterName;
 import org.web3j.tx.gas.DefaultGasProvider;
+
+import java.math.BigInteger;
 
 @Component
 public class BlockchainEventListener {
@@ -27,6 +30,9 @@ public class BlockchainEventListener {
 
     @Autowired
     private PagamentoService pagamentoService;
+
+    @Autowired
+    private LanceService lanceService;
 
 
     @Value("${web3.contract-address}")
@@ -65,11 +71,14 @@ public class BlockchainEventListener {
                     DefaultBlockParameterName.LATEST,
                     DefaultBlockParameterName.LATEST //olha a sempre o ultimo bloco minerado
             ).subscribe(evento -> {
-                System.out.println("Novo lance detectado!");
-                System.out.println("Dono do lance: " + evento.participant + " | Valor: " + evento.amount);
+                String carteira = evento.participant;
+                BigInteger valorWei = evento.amount;
+                Long ciclo = evento.cycle.longValue();
+                Integer tipoLance = evento.bidType.intValue();
+                String txhash = evento.log.getTransactionHash();
 
 
-                //lanceService.salvarLanceVindoDaRede(evento.participant, evento.amount);
+                lanceService.registraLancePelaBlockchain(carteira, valorWei, ciclo, tipoLance, txhash);
             }, erro -> {
                 System.err.println("Erro no stream de lances: " + erro.getMessage());
             });
@@ -80,5 +89,6 @@ public class BlockchainEventListener {
             System.err.println("Falha crítica ao iniciar os listeners: " + e.getMessage());
         }
     }
+
 
 }
