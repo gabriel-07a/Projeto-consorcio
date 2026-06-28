@@ -9,6 +9,7 @@ import com.consorcio.projeto_consorcio.cota.CotaRepository;
 import com.consorcio.projeto_consorcio.pagamentos.dto.PagamentoResponseDTO;
 import com.consorcio.projeto_consorcio.pagamentos.enums.StatusPagamento;
 import com.consorcio.projeto_consorcio.usuario.Usuario;
+import com.consorcio.projeto_consorcio.blockchain.BlockchainGateway;
 import com.consorcio.projeto_consorcio.usuario.UsuarioRepository;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -27,12 +28,14 @@ public class PagamentoService {
     private final CotaRepository cotaRepository;
     private final PagamentoRepository pagamentoRepository;
     private final UsuarioRepository usuarioRepository;
+    private final BlockchainGateway blockchainGateway;
 
-    public PagamentoService(CotaRepository cotaRepository, GrupoConsorcioRepository grupoConsorcioRepository, PagamentoRepository pagamentoRepository, UsuarioRepository usuarioRepository){
+    public PagamentoService(CotaRepository cotaRepository, GrupoConsorcioRepository grupoConsorcioRepository, PagamentoRepository pagamentoRepository, UsuarioRepository usuarioRepository, BlockchainGateway blockchainGateway){
         this.cotaRepository = cotaRepository;
         this.grupoConsorcioRepository = grupoConsorcioRepository;
         this.pagamentoRepository = pagamentoRepository;
         this.usuarioRepository = usuarioRepository;
+        this.blockchainGateway = blockchainGateway;
     }
 
     @Transactional
@@ -117,19 +120,35 @@ public class PagamentoService {
         pagamento.setDataPagamento(LocalDateTime.now());
 
         pagamentoRepository.save(pagamento);
+
+        List<Pagamento> parcelas = pagamentoRepository.buscarExtratoPorCotaId(pagamento.getCota().getId());
+        boolean temParcelaAtrasada = false;
+        for (Pagamento p : parcelas) {
+            if (p.getStatusDoPagamento() == StatusPagamento.ATRASADO) {
+                temParcelaAtrasada = true;
+                break;
+            }
+        }
+        if (!temParcelaAtrasada) {
+            blockchainGateway.regularizarParticipante(pagamento.getCota().getGrupoConsorcio().getEnderecoContrato(), carteiraCliente);
+        }
     }
 
-
-
-
-    // Esta expressao significa que vai ser ativado todo dia as 1 da manha
     @Scheduled(cron = "0 0 1 * * *")
     @Transactional
     public void fiscalizarParcelasAtrasadas() {
         LocalDate hoje = LocalDate.now();
 
-        int quantidadeAtualizada = pagamentoRepository.atualizarStatusParcelasVencidas(hoje);
+        List<Pagamento> parcelasVencidas = pagamentoRepository.findAll().stream()
+                .filter(p -> p.getStatusDoPagamento() == StatusPagamento.PENDENTE && p.getDataVencimento().isBefore(hoje))
+                .toList();
 
-        // devolvo uma mensagem de execução ("Rotina de fiscalização concluída: {} parcelas marcadas como ATRASADAS no dia {}.", quantidadeAtualizada, hoje);
+        for (Pagamento pagamento : parcelasVencidas) {
+            pagamento.setStatusDoPagamento(StatusPagamento.ATRASADO);
+            pagamentoRepository.save(pagamento);
+
+            BigDecimal valorMulta = pagamento.getValorParcela().multiply(new BigDecimal("0.02"));
+            blockchainGateway.aplicarInadimplencia(pagamento.getCota().getGrupoConsorcio().getEnderecoContrato(), pagamento.getCota().getUsuario().getCarteiraWeb3(), valorMulta);
+        }
     }
 }

@@ -12,7 +12,7 @@ import org.web3j.tx.gas.DefaultGasProvider;
 import java.math.BigInteger;
 
 @Service
-public class ConsorcioBlockchainService {
+public class BlockchainService {
 
     @Autowired
     private Web3j web3j;

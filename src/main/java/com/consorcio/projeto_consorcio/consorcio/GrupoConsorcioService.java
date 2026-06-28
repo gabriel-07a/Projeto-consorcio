@@ -11,10 +11,10 @@ import com.consorcio.projeto_consorcio.core.exception.RegraDeNegocioException;
 import com.consorcio.projeto_consorcio.cota.Cota;
 import com.consorcio.projeto_consorcio.cota.CotaRepository;
 import com.consorcio.projeto_consorcio.cota.dto.CotaResponseDTO;
-import com.consorcio.projeto_consorcio.pagamentos.PagamentoRepository;
+import com.consorcio.projeto_consorcio.blockchain.BlockchainGateway;
 import com.consorcio.projeto_consorcio.pagamentos.PagamentoService;
-import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -23,11 +23,13 @@ public class GrupoConsorcioService {
     private final GrupoConsorcioRepository grupoConsorcioRepository;
     private final CotaRepository cotaRepository;
     private final PagamentoService pagamentoService;
+    private final BlockchainGateway blockchainGateway;
 
-    public GrupoConsorcioService(GrupoConsorcioRepository grupoConsorcioRepository, CotaRepository cotaRepository, PagamentoService pagamentoService){
+    public GrupoConsorcioService(GrupoConsorcioRepository grupoConsorcioRepository, CotaRepository cotaRepository, PagamentoService pagamentoService, BlockchainGateway blockchainGateway){
         this.grupoConsorcioRepository = grupoConsorcioRepository;
         this.cotaRepository = cotaRepository;
         this.pagamentoService = pagamentoService;
+        this.blockchainGateway = blockchainGateway;
     }
 
     @Transactional
@@ -69,7 +71,7 @@ public class GrupoConsorcioService {
         );
     }
 
-    @org.springframework.transaction.annotation.Transactional(readOnly = true)
+    @Transactional(readOnly = true)
     public GrupoConsorcioResponseDTO buscarGrupo(Long id){
         GrupoConsorcio grupo = grupoConsorcioRepository.findById(id)
                 .orElseThrow(() -> new EntidadeNaoEncontradaException("Erro: Grupo não encontrado!"));
@@ -82,7 +84,7 @@ public class GrupoConsorcioService {
         );
     }
 
-    @org.springframework.transaction.annotation.Transactional(readOnly = true)
+    @Transactional(readOnly = true)
     public List<CotaResponseDTO> listarCotas(Long grupoId){
         if(!grupoConsorcioRepository.existsById(grupoId)) throw new EntidadeNaoEncontradaException("Erro: Este grupo não existe!");
 

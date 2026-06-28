@@ -1,10 +1,8 @@
 package com.consorcio.projeto_consorcio.blockchain;
 
 import com.consorcio.projeto_consorcio.blockchain.wrapper.ConsortiumGroup;
-import com.consorcio.projeto_consorcio.cota.CotaService;
 import com.consorcio.projeto_consorcio.lances.LanceService;
 import com.consorcio.projeto_consorcio.pagamentos.PagamentoService;
-import com.consorcio.projeto_consorcio.usuario.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;

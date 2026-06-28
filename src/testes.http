@@ -3,11 +3,11 @@ POST http://localhost:8080/grupos/criar
 Content-Type: application/json
 
 {
-  "nome": "Consorcio jaraguá 2026",
-  "valorCota": 1050.00,
+  "nome": "Consorcio biz2025",
+  "valorCota": 200.00,
   "vagasMaximas": 100,
-  "duracaoMeses": 90,
-  "enderecoContrato": "0x9999bB67C8901234567890abcdef1234567890cc",
+  "duracaoMeses": 50,
+  "enderecoContrato": "0x4738f10fD066aF1C3DeBD606e6CDc9a6dCA7D892",
   "aceitaLances": true,
   "tipoLanceAdicional": "LIVRE"
 }
@@ -16,11 +16,11 @@ POST http://localhost:8080/usuarios
 Content-Type: application/json
 
 {
-"nome": "Alice Silva",
-"email": "alice@email.com",
-  "senhaLimpa": "132fdas9fh",
-"taxId": "123.456.789-00",
-"carteiraWeb3": "0x9999bB67C8901234567890abcdef1234567890aa",
+"nome": "Andre Barbosa",
+"email": "andrezin@email.com",
+  "senhaLimpa": "132fddfsdf9fh",
+"taxId": "843.456.789-10",
+"carteiraWeb3": "0x90F8bf6A479f320ead074411a4B0e7944EAE8629",
   "countryCode": "BR"
 }
 
@@ -43,23 +43,23 @@ POST http://localhost:8080/cotas/comprar
 Content-Type: application/json
 
 {
-  "usuarioId": 1,
-  "grupoId": 2
+  "usuarioId": 3,
+  "grupoId": 3
 }
 
 ### sorteia
-POST http://localhost:8080/assembleia/grupos/2/sortear
+POST http://localhost:8080/assembleia/grupos/3/sortear
 Content-Type: application/json
 
 
 
 ### inicia o grupo
-PATCH http://localhost:8080/grupos/iniciar/2
+PATCH http://localhost:8080/grupos/iniciar/3
 Content-Type: application/json
 
 
 ### busca 1 usuario
-GET http://localhost:8080/usuarios/2
+GET http://localhost:8080/usuarios/3
 Content-Type: application/json
 
 ### lista todos os usuarios
@@ -80,11 +80,11 @@ Content-Type: application/json
 
 
 ### Buscar um grupos
-GET http://localhost:8080/grupos/2
+GET http://localhost:8080/grupos/3
 Content-Type: application/json
 
 ### Buscar cotas por grupo
-GET http://localhost:8080/grupos/2/cotas
+GET http://localhost:8080/grupos/3/cotas
 Content-Type: application/json
 
 ### Buscar fatura por cota

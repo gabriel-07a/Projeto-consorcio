@@ -99,7 +99,42 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).body(erro);
     }
-    //BlockchainUnavailableException mais pra frente
+
+    @ExceptionHandler(BlockchainConnectivityException.class)
+    public ResponseEntity<ExceptionResponseDTO> falhaNaComunicacaoComABlockchain(BlockchainConnectivityException exception, HttpServletRequest request){
+        ExceptionResponseDTO erro = new ExceptionResponseDTO(
+                Instant.now(),
+                HttpStatus.BAD_GATEWAY.value(),
+                "Erro na comunicação com a Blockchain",
+                exception.getMessage(),
+                request.getRequestURI()
+        );
+        return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(erro);
+    }
+
+    @ExceptionHandler(InvalidCryptoAddressException.class)
+    public ResponseEntity<ExceptionResponseDTO> enderecoDeCarteiraInvalido(InvalidCryptoAddressException exception, HttpServletRequest request){
+        ExceptionResponseDTO erro = new ExceptionResponseDTO(
+                Instant.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                "Endereço de carteira inválido",
+                exception.getMessage(),
+                request.getRequestURI()
+        );
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erro);
+    }
+
+    @ExceptionHandler(AdminGasExhaustionException.class)
+    public ResponseEntity<ExceptionResponseDTO> saldoInsuficienteParaGas(AdminGasExhaustionException exception, HttpServletRequest request){
+        ExceptionResponseDTO erro = new ExceptionResponseDTO(
+                Instant.now(),
+                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                "Saldo insuficiente para pagar o gas para transação",
+                exception.getMessage(),
+                request.getRequestURI()
+        );
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(erro);
+    }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ExceptionResponseDTO> exceptionsEmGeral(Exception exception, HttpServletRequest request){

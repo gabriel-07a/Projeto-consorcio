@@ -33,6 +33,11 @@ public class Web3jConfig {
     //esse defaultGasProvider é pra definir os limites de gasto de gas
     @Bean
     public DefaultGasProvider gasProvider() {
-        return new DefaultGasProvider();
+        return new DefaultGasProvider() {
+            @Override
+            public java.math.BigInteger getGasLimit() {
+                return java.math.BigInteger.valueOf(3_000_000L);
+            }
+        };
     }
 }

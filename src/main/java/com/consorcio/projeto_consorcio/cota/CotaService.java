@@ -5,6 +5,7 @@ import com.consorcio.projeto_consorcio.consorcio.GrupoConsorcioRepository;
 
 import com.consorcio.projeto_consorcio.consorcio.enums.StatusGrupo;
 import com.consorcio.projeto_consorcio.core.exception.EntidadeNaoEncontradaException;
+import com.consorcio.projeto_consorcio.blockchain.BlockchainGateway;
 import com.consorcio.projeto_consorcio.cota.dto.CotaResponseDTO;
 import com.consorcio.projeto_consorcio.cota.enums.StatusCota;
 import com.consorcio.projeto_consorcio.pagamentos.PagamentoService;
@@ -16,16 +17,18 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class CotaService {
     private final PagamentoService pagamentoService;
+    private final BlockchainGateway blockchainGateway;
     private CotaRepository cotaRepository;
     private UsuarioRepository usuarioRepository;
     private GrupoConsorcioRepository grupoConsorcioRepository;
 
     //injeção de dependencias via construtor
-    public CotaService(CotaRepository cotaRepository, UsuarioRepository usuarioRepository, GrupoConsorcioRepository grupoConsorcioRepository, PagamentoService pagamentoService){
+    public CotaService(CotaRepository cotaRepository, UsuarioRepository usuarioRepository, GrupoConsorcioRepository grupoConsorcioRepository, PagamentoService pagamentoService, BlockchainGateway blockchainGateway){
         this.cotaRepository = cotaRepository;
         this.usuarioRepository = usuarioRepository;
         this.grupoConsorcioRepository = grupoConsorcioRepository;
         this.pagamentoService = pagamentoService;
+        this.blockchainGateway = blockchainGateway;
     }
 
     @Transactional // garante que ser der erro o banco defaz tudo
@@ -54,6 +57,8 @@ public class CotaService {
         cotaRepository.save(novaCota);
         //salvando o grupo
         grupoConsorcioRepository.save(grupoConsorcio);
+
+        blockchainGateway.registrarParticipante(grupoConsorcio.getEnderecoContrato(), usuario.getCarteiraWeb3());
 
         return new CotaResponseDTO(
                 novaCota.getId(),
