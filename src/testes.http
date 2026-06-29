@@ -90,3 +90,15 @@ Content-Type: application/json
 ### Buscar fatura por cota
 GET http://localhost:8080/pagamentos/cota/4
 Content-Type: application/json
+
+### Realizar assembleia de contemplação por lance
+POST http://localhost:8080/assembleia/grupos/3/contemplar-lance?tipoLance=LIVRE
+Content-Type: application/json
+
+### Avança o ciclo mensal manualmente (caso não ocorra contemplação por lance)
+POST http://localhost:8080/assembleia/grupos/3/avancar-ciclo
+Content-Type: application/json
+
+### Obtem saldo do caixa do grupo na blockchain
+GET http://localhost:8080/grupos/3/caixa
+Content-Type: application/json

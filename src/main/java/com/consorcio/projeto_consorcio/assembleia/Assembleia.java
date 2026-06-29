@@ -18,7 +18,6 @@ public class Assembleia {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "grupo_id", nullable = false)
     private GrupoConsorcio grupo;
@@ -27,7 +26,12 @@ public class Assembleia {
     @JoinColumn(name = "cota_vencedora_id", nullable = false)
     private Cota cotaContemplada;
 
-
     @Column(name = "data_assembleia", nullable = false)
     private LocalDate dataAssembleia;
+
+    @Column(name = "ciclo", nullable = false)
+    private Integer ciclo;
+
+    @Column(name = "tipo_contemplacao", nullable = false)
+    private String tipoContemplacao; //SORTEIO ou LANCE
 }

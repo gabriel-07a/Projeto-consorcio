@@ -1,6 +1,7 @@
 package com.consorcio.projeto_consorcio.blockchain;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 
 public interface BlockchainGateway {
     /**
@@ -34,4 +35,20 @@ public interface BlockchainGateway {
      */
     boolean contemplarVencedor(String enderecoContrato, String carteiraVencedorHex, Integer tipoContemplacao);
 
+    /**
+     * Retorna o saldo do caixa (consortiumFundBalance) em Wei.
+     */
+    BigInteger obterSaldoFundoComum(String enderecoContrato);
+
+    /**
+     * Retorna o valor da carta de crédito (creditValue) em Wei.
+     */
+    BigInteger obterValorCartaCredito(String enderecoContrato);
+
+    /**
+     * Faz o deploy do contrato ConsortiumGroup na blockchain.
+     * Retorna o endereço do contrato deployado.
+     */
+    String deployGrupoConsorcio(BigDecimal valorCota, Integer duracaoMeses, Boolean aceitaLances);
 }
+

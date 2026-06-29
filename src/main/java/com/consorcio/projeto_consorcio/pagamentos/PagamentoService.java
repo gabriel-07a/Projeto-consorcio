@@ -11,6 +11,7 @@ import com.consorcio.projeto_consorcio.pagamentos.enums.StatusPagamento;
 import com.consorcio.projeto_consorcio.usuario.Usuario;
 import com.consorcio.projeto_consorcio.blockchain.BlockchainGateway;
 import com.consorcio.projeto_consorcio.usuario.UsuarioRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,34 +25,29 @@ import java.util.List;
 
 @Service
 public class PagamentoService {
-    private final GrupoConsorcioRepository grupoConsorcioRepository;
-    private final CotaRepository cotaRepository;
-    private final PagamentoRepository pagamentoRepository;
-    private final UsuarioRepository usuarioRepository;
-    private final BlockchainGateway blockchainGateway;
-
-    public PagamentoService(CotaRepository cotaRepository, GrupoConsorcioRepository grupoConsorcioRepository, PagamentoRepository pagamentoRepository, UsuarioRepository usuarioRepository, BlockchainGateway blockchainGateway){
-        this.cotaRepository = cotaRepository;
-        this.grupoConsorcioRepository = grupoConsorcioRepository;
-        this.pagamentoRepository = pagamentoRepository;
-        this.usuarioRepository = usuarioRepository;
-        this.blockchainGateway = blockchainGateway;
-    }
+    @Autowired
+    private GrupoConsorcioRepository grupoConsorcioRepository;
+    
+    @Autowired
+    private CotaRepository cotaRepository;
+    
+    @Autowired
+    private PagamentoRepository pagamentoRepository;
+    
+    @Autowired
+    private UsuarioRepository usuarioRepository;
+    
+    @Autowired
+    private BlockchainGateway blockchainGateway;
 
     @Transactional
     public void criarParcelas(GrupoConsorcio grupo){
         List<Cota> cotasDoGrupo = cotaRepository.findByGrupoConsorcioId(grupo.getId());
 
-        //se for decidido ter taxas mais pra frente a gente coloca:
-/*        BigDecimal taxaCalculada = grupo.getValorCartaCredito()
-                .multiply(grupo.getTaxaAdministracao())
-                .divide(BigDecimal.valueOf(100), RoundingMode.HALF_UP);*/
-
         BigDecimal valorTotal = grupo.getValorCota();
-        BigDecimal valorParcela = valorTotal.divide(BigDecimal.valueOf(grupo.getDuracaoMeses()), 2, RoundingMode.HALF_UP); //esse dois é para o java cortar o número dps de duas casas decimais
+        BigDecimal valorParcela = valorTotal.divide(BigDecimal.valueOf(grupo.getDuracaoMeses()), 2, RoundingMode.HALF_UP);
 
         List<Pagamento> todasAsParcelas = new ArrayList<>();
-        //colocando o vencimento para o dia 5 do proximo mes depois do inicio
         LocalDate dataPrimeiroVencimento = LocalDate.now().plusMonths(1).withDayOfMonth(5);
 
         for(Cota cota : cotasDoGrupo){
@@ -72,12 +68,10 @@ public class PagamentoService {
     }
 
     @Transactional(readOnly = true)
-    public List<PagamentoResponseDTO> buscarExtrato(Long cotaId /*,Long idUsuarioLogado*/){
+    public List<PagamentoResponseDTO> buscarExtrato(Long cotaId){
         Cota cota = cotaRepository.findById(cotaId)
                 .orElseThrow(() -> new EntidadeNaoEncontradaException("Cota não encontrada!"));
 
-        //if(!cota.getUsuario().getId().equals(idUsuarioLogado)) throw new AcessoNegadoException("Você não tem permissão para ver esse extrato!");
-        //futuramente com o spring security
         List<Pagamento> parcelas = pagamentoRepository.buscarExtratoPorCotaId(cotaId);
 
         return parcelas.stream()
@@ -108,12 +102,12 @@ public class PagamentoService {
     }
 
     @Transactional
-    public void confirmarPagamentoPeloBlockchain(String carteiraCliente, Long mesCiclo, String hashTransacao){
+    public void confirmarPagamentoPeloBlockchain(String enderecoContrato, String carteiraCliente, Long mesCiclo, String hashTransacao){
         Usuario usuario = usuarioRepository.findByCarteiraWeb3IgnoreCase(carteiraCliente)
                 .orElseThrow(() -> new RegraDeNegocioException("Erro: Evento de pagamento identificado de uma carteira não cadastrada: " + carteiraCliente));
 
-        Pagamento pagamento = pagamentoRepository.buscarParcelaPendente(usuario.getId(), mesCiclo.intValue())
-                .orElseThrow(() -> new RegraDeNegocioException("Erro: Parcela não encontrada para esse usuário!"));
+        Pagamento pagamento = pagamentoRepository.buscarParcelaPendentePorGrupo(usuario.getId(), mesCiclo.intValue(), enderecoContrato)
+                .orElseThrow(() -> new RegraDeNegocioException("Erro: Parcela não encontrada para esse usuário no grupo " + enderecoContrato));
 
         pagamento.setStatusDoPagamento(StatusPagamento.PAGO);
         pagamento.setHashTransacao(hashTransacao);

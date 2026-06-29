@@ -65,3 +65,9 @@ desktop.ini
 
 ### Solidity Dependencies ###
 src/main/resources/solidity/openzeppelin/
+
+### Node.js / NPM ###
+node_modules/
+package.json
+package-lock.json
+

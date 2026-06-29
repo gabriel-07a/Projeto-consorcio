@@ -23,7 +23,7 @@ public class BlockchainService {
     @Autowired
     private DefaultGasProvider gasProvider;
 
-    @Value("${web3.contract-address}")
+    @Value("${web3.contract-address:}")
     private String contractAddress;
 
 

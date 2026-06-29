@@ -1,0 +1,22 @@
+spring.application.name=projeto_consorcio
+server.port=8080
+
+# dados do banco (MySQL)
+spring.datasource.url=jdbc:mysql://localhost:3306/consorcio_db?createDatabaseIfNotExist=true&serverTimezone=UTC
+spring.datasource.username=root
+spring.datasource.password=SUA_SENHA_AQUI
+spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.format_sql=true
+
+#security
+api.security.token.secret=minha_senha_super_secreta_123
+
+#blockchain (Ganache)
+web3.rpc-url=http://127.0.0.1:7545
+# Chave privada da Conta 1 do seu Ganache (usada pelo backend para assinar transações)
+web3.backend-private-key=0xSUA_CHAVE_PRIVADA_DA_CONTA_1_AQUI
+# Endereço público correspondente à Conta 1 do seu Ganache (usada como administrador do consórcio)
+web3.admin-address=0xSEU_ENDERECO_PUBLICO_DA_CONTA_1_AQUI

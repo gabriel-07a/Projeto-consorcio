@@ -24,4 +24,11 @@ public interface PagamentoRepository extends JpaRepository<Pagamento, Long> {
             @Param("numeroParcela") Integer numeroParcela
     );
 
+    @Query("SELECT p FROM Pagamento p JOIN FETCH p.cota c JOIN FETCH c.grupoConsorcio g WHERE c.usuario.id = :usuarioId AND p.numeroParcela = :numeroParcela AND LOWER(g.enderecoContrato) = LOWER(:enderecoContrato)")
+    Optional<Pagamento> buscarParcelaPendentePorGrupo(
+            @Param("usuarioId") Long usuarioId,
+            @Param("numeroParcela") Integer numeroParcela,
+            @Param("enderecoContrato") String enderecoContrato
+    );
+
 }

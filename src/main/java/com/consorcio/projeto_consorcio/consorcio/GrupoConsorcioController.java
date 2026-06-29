@@ -5,8 +5,10 @@ import com.consorcio.projeto_consorcio.consorcio.dto.CriarGrupoConsorcioRequestD
 import com.consorcio.projeto_consorcio.consorcio.dto.CriarGrupoConsorcioResponseDTO;
 import com.consorcio.projeto_consorcio.consorcio.dto.GrupoConsorcioResponseDTO;
 import com.consorcio.projeto_consorcio.consorcio.enums.StatusGrupo;
+import com.consorcio.projeto_consorcio.consorcio.dto.GrupoCaixaResponseDTO;
 import com.consorcio.projeto_consorcio.cota.dto.CotaResponseDTO;
 import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,13 +18,11 @@ import java.util.List;
 @RestController
 @RequestMapping("/grupos")
 public class GrupoConsorcioController {
-    private final GrupoConsorcioService grupoConsorcioService;
-    private final GrupoConsorcioRepository grupoConsorcioRepository;
-
-    public GrupoConsorcioController(GrupoConsorcioService grupoConsorcioService, GrupoConsorcioRepository grupoConsorcioRepository){
-        this.grupoConsorcioRepository = grupoConsorcioRepository;
-        this.grupoConsorcioService = grupoConsorcioService;
-    }
+    @Autowired
+    private GrupoConsorcioService grupoConsorcioService;
+    
+    @Autowired
+    private GrupoConsorcioRepository grupoConsorcioRepository;
 
     @GetMapping
     public ResponseEntity<List<GrupoConsorcioResponseDTO>> buscarGrupos(@RequestParam(required = false)StatusGrupo status){
@@ -73,6 +73,9 @@ public class GrupoConsorcioController {
         return ResponseEntity.ok(response);
     }
 
-
-
+    @GetMapping("/{grupoId}/caixa")
+    public ResponseEntity<GrupoCaixaResponseDTO> obterCaixaGrupo(@PathVariable Long grupoId) {
+        GrupoCaixaResponseDTO response = grupoConsorcioService.obterCaixaGrupo(grupoId);
+        return ResponseEntity.ok(response);
+    }
 }

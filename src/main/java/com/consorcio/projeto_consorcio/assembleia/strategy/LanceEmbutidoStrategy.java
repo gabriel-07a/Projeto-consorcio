@@ -1,4 +1,42 @@
 package com.consorcio.projeto_consorcio.assembleia.strategy;
 
-public class LanceEmbutidoStrategy {
+import com.consorcio.projeto_consorcio.core.exception.RegraDeNegocioException;
+import com.consorcio.projeto_consorcio.cota.Cota;
+import com.consorcio.projeto_consorcio.lances.Lance;
+
+import java.util.Comparator;
+import java.util.List;
+
+public class LanceEmbutidoStrategy implements ContemplacaoStrategy {
+    private final List<Lance> lancesDoCiclo;
+
+    public LanceEmbutidoStrategy(List<Lance> lancesDoCiclo) {
+        this.lancesDoCiclo = lancesDoCiclo;
+    }
+
+    @Override
+    public Cota elegerVencedor(List<Cota> cotasElegiveis) {
+        if (lancesDoCiclo == null || lancesDoCiclo.isEmpty()) {
+            throw new RegraDeNegocioException("Erro: Não há lances registrados para este ciclo.");
+        }
+
+        //filtro os lances embutidos elegíveis
+        List<Lance> lancesValidos = lancesDoCiclo.stream()
+                .filter(l -> l.getTipoLance().equalsIgnoreCase("EMBUTIDO"))
+                .filter(l -> cotasElegiveis.contains(l.getCota()))
+                .toList();
+
+        if (lancesValidos.isEmpty()) {
+            throw new RegraDeNegocioException("Erro: Nenhum lance embutido elegível encontrado para este ciclo.");
+        }
+
+        //seleciona o de maior valor ou desempata pelo menor id (partipante que deu o lance primeiro)
+        Lance lanceVencedor = lancesValidos.stream()
+                .max(Comparator.comparing(Lance::getValorLance)
+                        .thenComparing((l1, l2) -> l2.getId().compareTo(l1.getId())))
+                .orElseThrow(() -> new RegraDeNegocioException("Erro ao calcular o lance embutido vencedor."));
+
+        lanceVencedor.setVencedor(true);
+        return lanceVencedor.getCota();
+    }
 }

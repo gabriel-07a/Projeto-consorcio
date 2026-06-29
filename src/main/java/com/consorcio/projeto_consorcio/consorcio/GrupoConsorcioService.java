@@ -12,25 +12,34 @@ import com.consorcio.projeto_consorcio.cota.Cota;
 import com.consorcio.projeto_consorcio.cota.CotaRepository;
 import com.consorcio.projeto_consorcio.cota.dto.CotaResponseDTO;
 import com.consorcio.projeto_consorcio.blockchain.BlockchainGateway;
+import com.consorcio.projeto_consorcio.blockchain.BlockchainEventListener;
 import com.consorcio.projeto_consorcio.pagamentos.PagamentoService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.math.RoundingMode;
+import com.consorcio.projeto_consorcio.consorcio.dto.GrupoCaixaResponseDTO;
 
 @Service
 public class GrupoConsorcioService {
-    private final GrupoConsorcioRepository grupoConsorcioRepository;
-    private final CotaRepository cotaRepository;
-    private final PagamentoService pagamentoService;
-    private final BlockchainGateway blockchainGateway;
+    @Autowired
+    private GrupoConsorcioRepository grupoConsorcioRepository;
+    
+    @Autowired
+    private CotaRepository cotaRepository;
+    
+    @Autowired
+    private PagamentoService pagamentoService;
+    
+    @Autowired
+    private BlockchainGateway blockchainGateway;
 
-    public GrupoConsorcioService(GrupoConsorcioRepository grupoConsorcioRepository, CotaRepository cotaRepository, PagamentoService pagamentoService, BlockchainGateway blockchainGateway){
-        this.grupoConsorcioRepository = grupoConsorcioRepository;
-        this.cotaRepository = cotaRepository;
-        this.pagamentoService = pagamentoService;
-        this.blockchainGateway = blockchainGateway;
-    }
+    @Autowired
+    private BlockchainEventListener blockchainEventListener;
 
     @Transactional
     public CriarGrupoConsorcioResponseDTO criarNovoGrupoConsorcio(CriarGrupoConsorcioRequestDTO requestDTO){
@@ -48,20 +57,29 @@ public class GrupoConsorcioService {
 
         if(grupoConsorcioRepository.existsByNome(requestDTO.nome())) throw new RegraDeNegocioException("Erro: Esse nome já foi usado!");
 
+        String enderecoContrato = requestDTO.enderecoContrato();
+        if (enderecoContrato == null || enderecoContrato.isBlank()) {
+            System.out.println("Solicitando deploy automático do contrato para o grupo: " + requestDTO.nome());
+            enderecoContrato = blockchainGateway.deployGrupoConsorcio(requestDTO.valorCota(), requestDTO.duracaoMeses(), requestDTO.aceitaLances());
+            System.out.println("Contrato deployado automaticamente com sucesso no endereço: " + enderecoContrato);
+        }
+
         GrupoConsorcio novoGrupo = new GrupoConsorcio();
         novoGrupo.setNome(requestDTO.nome());
         novoGrupo.setValorCota(requestDTO.valorCota());
         novoGrupo.setVagasMaximas(requestDTO.vagasMaximas());
         novoGrupo.setDuracaoMeses(requestDTO.duracaoMeses());
-        novoGrupo.setEnderecoContrato(requestDTO.enderecoContrato());
+        novoGrupo.setEnderecoContrato(enderecoContrato);
         novoGrupo.setAceitaLances(requestDTO.aceitaLances());
         novoGrupo.setTipoLanceAdicional(tipoLanceFinal);
 
-        //criar no entity
-        //novoGrupo.setVagasDisponiveis(requestDTO.vagasMaximas());
         novoGrupo.setStatus(StatusGrupo.EM_FORMACAO);
 
         GrupoConsorcio grupoSalvado = grupoConsorcioRepository.save(novoGrupo);
+
+        if (grupoSalvado.getEnderecoContrato() != null && !grupoSalvado.getEnderecoContrato().isBlank()) {
+            blockchainEventListener.registrarNovoContratoEscuta(grupoSalvado.getEnderecoContrato());
+        }
 
         return new CriarGrupoConsorcioResponseDTO(
                 grupoSalvado.getId(),
@@ -80,7 +98,9 @@ public class GrupoConsorcioService {
                 grupo.getId(),
                 grupo.getNome(),
                 grupo.getStatus(),
-                grupo.getVagasMaximas()
+                grupo.getVagasMaximas(),
+                grupo.getAceitaLances(),
+                grupo.getTipoLanceAdicional()
         );
     }
 
@@ -116,10 +136,11 @@ public class GrupoConsorcioService {
                         grupo.getId(),
                         grupo.getNome(),
                         grupo.getStatus(),
-                        grupo.getVagasMaximas()
+                        grupo.getVagasMaximas(),
+                        grupo.getAceitaLances(),
+                        grupo.getTipoLanceAdicional()
                 ))
                 .toList();
-                //depois adicionar mais campos do dto e aqui
     }
 
     @Transactional
@@ -132,13 +153,13 @@ public class GrupoConsorcioService {
 
         grupoConsorcioRepository.save(grupoConsorcio);
 
-        pagamentoService.criarParcelas(grupoConsorcio);//para gerar as parcelas de todos
+        pagamentoService.criarParcelas(grupoConsorcio);
 
         return "Grupo: " + grupoConsorcio.getNome()+ " iniciado com suscesso!";
 
     }
 
-    @org.springframework.transaction.annotation.Transactional
+    @Transactional
     public String encerrarGrupo(Long grupoId){
         GrupoConsorcio grupo = grupoConsorcioRepository.findById(grupoId)
                 .orElseThrow(() -> new EntidadeNaoEncontradaException("Erro: Essa grupo não existe!"));
@@ -149,6 +170,23 @@ public class GrupoConsorcioService {
 
     }
 
+    @Transactional(readOnly = true)
+    public GrupoCaixaResponseDTO obterCaixaGrupo(Long id) {
+        GrupoConsorcio grupo = grupoConsorcioRepository.findById(id)
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("Erro: Grupo não encontrado!"));
+
+        if (grupo.getEnderecoContrato() == null || grupo.getEnderecoContrato().isBlank()) {
+            throw new RegraDeNegocioException("Erro: Este grupo não possui um endereço de contrato inteligente cadastrado!");
+        }
+
+        BigInteger saldoWei = blockchainGateway.obterSaldoFundoComum(grupo.getEnderecoContrato());
+        BigInteger creditoWei = blockchainGateway.obterValorCartaCredito(grupo.getEnderecoContrato());
+
+        BigDecimal saldo = new BigDecimal(saldoWei).divide(new BigDecimal("1000000000000000000"), 2, RoundingMode.HALF_UP);
+        BigDecimal credito = new BigDecimal(creditoWei).divide(new BigDecimal("1000000000000000000"), 2, RoundingMode.HALF_UP);
+
+        return new GrupoCaixaResponseDTO(grupo.getId(), grupo.getNome(), saldo, credito);
+    }
 
     @Transactional
     public ApagarGrupoConsorcioResponseDTO apagarGrupoConsorcio(Long grupoId, String enderecoContrato){

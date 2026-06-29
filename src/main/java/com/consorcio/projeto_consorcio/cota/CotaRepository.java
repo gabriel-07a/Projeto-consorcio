@@ -13,6 +13,8 @@ public interface CotaRepository extends JpaRepository<Cota, Long> {
     //traz todas as cotas que um usuário comprou
     Optional<Cota> findByUsuarioId(Long usuarioId);
 
+    Optional<Cota> findByUsuarioIdAndGrupoConsorcioEnderecoContratoIgnoreCase(Long usuarioId, String enderecoContrato);
+
     // traz todas as cotas ativas de um grupo
     List<Cota> findByGrupoConsorcioIdAndStatus(Long grupoId, StatusCota status);
 

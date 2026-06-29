@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 
 @Service
@@ -26,15 +27,15 @@ public class LanceService {
     private CotaRepository cotaRepository;
 
     @Transactional
-    public void registraLancePelaBlockchain(String carteiraCliente, BigInteger valorWei, Long numeroCiclo, Integer tipoLanceEnum, String hashTransacao) {
+    public void registraLancePelaBlockchain(String enderecoContrato, String carteiraCliente, BigInteger valorWei, Long numeroCiclo, Integer tipoLanceEnum, String hashTransacao) {
         Usuario usuario = usuarioRepository.findByCarteiraWeb3IgnoreCase(carteiraCliente)
                 .orElseThrow(() -> new RegraDeNegocioException("Erro: Lance identificado de uma carteira não cadastrada: " + carteiraCliente));
 
-        Cota cota = cotaRepository.findByUsuarioId(usuario.getId())
-                .orElseThrow(() -> new RegraDeNegocioException("Erro: Cota não encontrada para o usuário: " + usuario.getNome()));
+        Cota cota = cotaRepository.findByUsuarioIdAndGrupoConsorcioEnderecoContratoIgnoreCase(usuario.getId(), enderecoContrato)
+                .orElseThrow(() -> new RegraDeNegocioException("Erro: Cota não encontrada para o usuário " + usuario.getNome() + " no grupo " + enderecoContrato));
 
-        //converte o wei para BigDecimal
-        BigDecimal valorLance = new BigDecimal(valorWei).divide(new BigDecimal("1000000000000000000"));
+        //converte o wei para BigDecimal com 18 casas decimais (padrão EVM)
+        BigDecimal valorLance = new BigDecimal(valorWei).divide(new BigDecimal("1000000000000000000"), 18, RoundingMode.HALF_UP);
 
 
         String tipoLanceStr = "LIVRE";
