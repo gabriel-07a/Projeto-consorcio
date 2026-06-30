@@ -57,7 +57,7 @@ public class AssembleiaService {
         int sorteiosRealizados = assembleiaRepository.countByGrupoIdAndTipoContemplacao(grupoId, "SORTEIO");
         int cicloAtual = sorteiosRealizados + 1;
 
-        blockchainGateway.fecharMesAtual(grupoConsorcio.getEnderecoContrato(), cicloAtual);
+        //blockchainGateway.fecharMesAtual(grupoConsorcio.getEnderecoContrato(), cicloAtual);
 
         ContemplacaoStrategy estrategiaSorteio = new SorteioStrategy();
         Cota cotaVencedora = estrategiaSorteio.elegerVencedor(elegiveis);

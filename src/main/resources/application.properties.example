@@ -11,12 +11,11 @@ spring.jpa.hibernate.ddl-auto=update
 spring.jpa.show-sql=true
 spring.jpa.properties.hibernate.format_sql=true
 
-#security
-api.security.token.secret=minha_senha_super_secreta_123
 
-#blockchain (Ganache)
+
+#blockchain
 web3.rpc-url=http://127.0.0.1:7545
-# Chave privada da Conta 1 do seu Ganache (usada pelo backend para assinar transações)
+# Chave privada da Conta 1 do Ganache usada pelo backend para assinar transações
 web3.backend-private-key=0xSUA_CHAVE_PRIVADA_DA_CONTA_1_AQUI
-# Endereço público correspondente à Conta 1 do seu Ganache (usada como administrador do consórcio)
+# Endereço público correspondente a Conta 2 do Ganache usada como administrador do consórcio
 web3.admin-address=0xSEU_ENDERECO_PUBLICO_DA_CONTA_1_AQUI
