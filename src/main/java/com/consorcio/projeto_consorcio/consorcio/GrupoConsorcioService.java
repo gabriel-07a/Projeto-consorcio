@@ -58,11 +58,7 @@ public class GrupoConsorcioService {
         if(grupoConsorcioRepository.existsByNome(requestDTO.nome())) throw new RegraDeNegocioException("Erro: Esse nome já foi usado!");
 
         String enderecoContrato = requestDTO.enderecoContrato();
-        if (enderecoContrato == null || enderecoContrato.isBlank()) {
-            System.out.println("Solicitando deploy automático do contrato para o grupo: " + requestDTO.nome());
-            enderecoContrato = blockchainGateway.deployGrupoConsorcio(requestDTO.valorCota(), requestDTO.duracaoMeses(), requestDTO.aceitaLances());
-            System.out.println("Contrato deployado automaticamente com sucesso no endereço: " + enderecoContrato);
-        }
+
 
         GrupoConsorcio novoGrupo = new GrupoConsorcio();
         novoGrupo.setNome(requestDTO.nome());

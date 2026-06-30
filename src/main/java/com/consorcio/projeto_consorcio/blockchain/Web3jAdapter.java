@@ -234,47 +234,4 @@ public class Web3jAdapter implements BlockchainGateway{
         }
     }
 
-    @Override
-    public String deployGrupoConsorcio(BigDecimal valorCota, Integer duracaoMeses, Boolean aceitaLances) {
-        preOperacaoCheck();
-        try {
-            String tokenAddress = stablecoinAddress;
-            if (tokenAddress == null || tokenAddress.isBlank() || tokenAddress.equals("0x0000000000000000000000000000000000000000")) {
-                System.out.println("Stablecoin não configurada ou zerada. Realizando deploy automático de um MockToken (Mock USDT)...");
-                MockToken tokenMock = MockToken.deploy(web3j, credentials, gasProvider).send();
-                tokenAddress = tokenMock.getContractAddress();
-                System.out.println("MockToken (USDT) deployado com sucesso no endereço: " + tokenAddress);
-                stablecoinAddress = tokenAddress;
-            }
-
-            BigInteger creditValueWei = valorCota.multiply(MULTIPLICADOR_WEI).toBigInteger();
-            BigInteger installmentValueWei = valorCota.divide(BigDecimal.valueOf(duracaoMeses), 18, java.math.RoundingMode.HALF_UP)
-                    .multiply(MULTIPLICADOR_WEI).toBigInteger();
-            BigInteger totalMonths = BigInteger.valueOf(duracaoMeses);
-            BigInteger maxContemplationsPerCycle = Boolean.TRUE.equals(aceitaLances) ? BigInteger.valueOf(2) : BigInteger.ONE;
-
-            String adminAddress = (adminAddressConfig != null && !adminAddressConfig.isBlank())
-                    ? adminAddressConfig
-                    : credentials.getAddress();
-            String backendAddress = credentials.getAddress();
-
-            ConsortiumGroup contrato = ConsortiumGroup.deploy(
-                    web3j,
-                    credentials,
-                    gasProvider,
-                    adminAddress,
-                    backendAddress,
-                    tokenAddress,
-                    creditValueWei,
-                    installmentValueWei,
-                    totalMonths,
-                    maxContemplationsPerCycle
-            ).send();
-
-            return contrato.getContractAddress();
-        } catch (Exception e) {
-            System.err.println("Erro ao deployar contrato do consórcio: " + e.getMessage());
-            throw new RegraDeNegocioException("Erro ao deployar contrato inteligente na blockchain: " + e.getMessage());
-        }
-    }
 }

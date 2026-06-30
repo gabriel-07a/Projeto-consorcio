@@ -14,7 +14,7 @@ Este projeto consiste em um sistema de gerenciamento de grupos de consórcio int
 
 ---
 
-## 📋 Status Atual do Projeto (Pronto para Entrega)
+## 📋 Status do Projeto 
 
 O projeto está **completamente funcional e estruturado**. Todas as regras de negócio críticas foram implementadas, validadas e testadas:
 
@@ -79,35 +79,63 @@ O servidor Spring Boot iniciará por padrão na porta `8080`.
 
 ---
 
-## 🧪 Fluxo de Testes Passo a Passo (Com Auto-Deploy)
+## 🧪 Fluxo de Testes Passo a Passo (Deploy Manual via Remix)
 
-No diretório [testes.http](file:///C:/Users/luzin/IdeaProjects/Projeto-consorcio/src/testes.http), você encontrará requisições prontas para executar esse fluxo completo diretamente na sua IDE:
+No diretório `testes.http`, você encontrará requisições prontas para executar esse fluxo completo diretamente na sua IDE. Como a arquitetura exige a presença física dos contratos na blockchain antes da criação do grupo, faremos o deploy via **Remix IDE**.
 
-### Passo 1: Cadastrar os Usuários de Teste
-Crie pelo menos dois participantes no banco de dados.
+### Passo 1: Cadastrar os Usuários de Teste (Backend)
+Crie pelo menos dois participantes no banco de dados através da sua API.
 > [!IMPORTANT]
 > Em `carteiraWeb3`, utilize os endereços públicos de contas geradas pelo seu Ganache (por exemplo, a Conta 2 e a Conta 3, visto que a Conta 1 é usada pelo backend/admin).
 * Dispare a requisição `POST /usuarios` para cada participante.
 
-### Passo 2: Criar o Grupo (Auto-Deploy Encadeado)
-Envie a requisição `POST /grupos/criar` **removendo ou deixando em branco** o campo `enderecoContrato`.
-* **O que acontece**: O Java percebe que a blockchain local está ativa mas o grupo não tem contrato. Ele realiza o deploy automático da moeda (`MockToken`) e depois do consórcio (`ConsortiumGroup`) no Ganache.
-* Você verá os novos endereços impressos no console do Spring Boot e salvos no banco.
+### Passo 2: Deploy dos Contratos Inteligentes via Remix IDE
+Como o sistema interage com tokens ERC20 reais (ou simulados), precisamos primeiro lançar a moeda na rede local e, em seguida, lançar o contrato do consórcio informando qual moeda ele deve aceitar.
 
-### Passo 3: Adquirir as Cotas
-Adicione os usuários criados no grupo que foi gerado no Passo 2.
-* Chame `POST /cotas/comprar` passando o `usuarioId` e o `grupoId`. A carteira do usuário será registrada no contrato inteligente correspondente ao grupo.
+#### 2.1 - Configurar o Ambiente no Remix
+1. Abra o [Remix IDE](https://remix.ethereum.org/) no navegador.
+2. Na aba **Deploy & Run Transactions**, altere o campo **Environment** para `Dev - Ganache Provider` ou `Custom - External Http Provider` e aponte para `http://127.0.0.1:7545`.
+3. Verifique se as contas do seu Ganache apareceram no campo **Account**. Selecione a primeira conta (Conta Admin).
 
-### Passo 4: Iniciar o Grupo
+#### 2.2 - Deploy da Moeda (MockToken)
+1. Crie um arquivo `MockToken.sol` no Remix e cole o código do seu token USDT simulado.
+2. Compile o contrato na aba **Solidity Compiler** (versão `0.8.24`).
+3. Vá para **Deploy**, selecione o `MockToken` e clique em **Deploy**.
+4. **Ação Crucial:** Copie o endereço do contrato do token gerado (ex: `0x123...`). Cole este endereço no seu arquivo `application.properties` do Spring Boot (na variável que define o endereço da stablecoin) e reserve-o para o próximo passo.
+
+#### 2.3 - Deploy do Consórcio (ConsortiumGroup)
+1. Crie um arquivo `ConsortiumGroup.sol`, cole o código do consórcio e compile. O Remix baixará automaticamente as bibliotecas da **OpenZeppelin**.
+2. Na aba **Deploy**, expanda a setinha ao lado do botão de Deploy para preencher os parâmetros do `constructor`:
+   * **admin**: Endereço da Conta 1 do Ganache.
+   * **backend**: Endereço da Conta 1 do Ganache (a mesma que assinará as transações do Spring Boot).
+   * **stablecoinAddress**: Cole o endereço do `MockToken` gerado no passo anterior.
+   * **_creditValue**: O valor do prêmio em Wei. Ex: para 50.000, digite `50000000000000000000000` (50 mil + 18 zeros).
+   * **_installmentValue**: O valor da parcela em Wei. Ex: `1000000000000000000000` (1 mil + 18 zeros).
+   * **_totalMonths**: A duração. Ex: `50`.
+   * **_maxContemplationsPerCycle**: Limite de contemplações por mês. Ex: `2`.
+3. Clique em **Transact**.
+4. Copie o endereço gerado para o contrato `ConsortiumGroup`.
+
+### Passo 3: Criar o Grupo no Banco de Dados
+Com o contrato vivo na blockchain, vamos espelhá-lo no sistema relacional.
+* Envie a requisição `POST /grupos/criar`.
+* **Obrigatório:** Preencha o campo `enderecoContrato` no JSON com o endereço do `ConsortiumGroup` que você acabou de copiar do Remix.
+
+### Passo 4: Adquirir as Cotas
+Adicione os usuários criados no Passo 1 ao grupo gerado no Passo 3.
+* Chame `POST /cotas/comprar` passando o `usuarioId` e o `grupoId`. A API registrará a carteira do usuário no contrato inteligente utilizando o `BACKEND_ROLE`.
+
+### Passo 5: Iniciar o Grupo e Realizar Pagamentos
 Mude o status do grupo para ativo, o que irá gerar e programar o carnê de parcelas.
 * Chame `PATCH /grupos/iniciar/{id}`.
+* Para simular o pagamento, você pode chamar diretamente a função `payInstallment()` no Remix usando a conta do usuário (selecionando a carteira do cliente no topo do Remix), ou via endpoint da API se você construiu uma rota para assinar a transação.
 
-### Passo 5: Executar Sorteio ou Contemplação por Lance
-Agora você pode simular a assembleia da rodada atual:
+### Passo 6: Executar Sorteio ou Contemplação por Lance
+Agora você pode simular a assembleia da rodada atual via Spring Boot:
 * **Sorteio**: Chame `POST /assembleia/grupos/{id}/sortear` para contemplar um participante por sorteio.
-* **Lance**: Chame `POST /assembleia/grupos/{id}/contemplar-lance?tipoLance=LIVRE` para eleger e contemplar o vencedor da rodada de lances.
+* **Lance**: Chame `POST /assembleia/grupos/{id}/contemplar-lance?tipoLance=LIVRE` para eleger e contemplar o vencedor da rodada.
+  *(O backend validará os saldos, alterará os status na blockchain e o Smart Contract transferirá o prêmio automaticamente).*
 
-### Passo 6: Consultar o Caixa do Consórcio
-Consulte em tempo real quanto de saldo o grupo possui e o valor da carta de crédito consultando diretamente os dados na Blockchain:
+### Passo 7: Consultar o Caixa do Consórcio
+Consulte em tempo real quanto de saldo o grupo possui e o valor da carta de crédito verificando os dados puros da rede Web3:
 * Chame `GET /grupos/{id}/caixa`.
-

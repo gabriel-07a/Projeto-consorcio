@@ -3,11 +3,11 @@ POST http://localhost:8080/grupos/criar
 Content-Type: application/json
 
 {
-  "nome": "Consorcio biz2025",
+  "nome": "Consorico com autodeploy na rede",
   "valorCota": 200.00,
   "vagasMaximas": 100,
   "duracaoMeses": 50,
-  "enderecoContrato": "0x4738f10fD066aF1C3DeBD606e6CDc9a6dCA7D892",
+  "enderecoContrato": "",
   "aceitaLances": true,
   "tipoLanceAdicional": "LIVRE"
 }

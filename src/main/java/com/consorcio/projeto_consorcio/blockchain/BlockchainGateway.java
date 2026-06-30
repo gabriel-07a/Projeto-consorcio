@@ -47,8 +47,8 @@ public interface BlockchainGateway {
 
     /**
      * Faz o deploy do contrato ConsortiumGroup na blockchain.
-     * Retorna o endereço do contrato deployado.
+     *  e retorna o endereço do contrato deployado.
      */
-    String deployGrupoConsorcio(BigDecimal valorCota, Integer duracaoMeses, Boolean aceitaLances);
+    //String deployGrupoConsorcio(BigDecimal valorCota, Integer duracaoMeses, Boolean aceitaLances);
 }
 
