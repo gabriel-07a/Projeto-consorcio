@@ -16,12 +16,10 @@ Este projeto consiste em um sistema de gerenciamento de grupos de consórcio int
 
 ## 📋 Status do Projeto 
 
-O projeto está **completamente funcional e estruturado**. Todas as regras de negócio críticas foram implementadas, validadas e testadas:
+O projeto está **funcional e estruturado**. As regras de negócio críticas foram implementadas e testadas:
 
 1. **Gestão de Grupos e Cotas com Deploy Automático**:
    - Criação de grupos e validação de limite de participantes.
-   - **Deploy Automático de Contratos**: Ao criar um grupo (`POST /grupos/criar`), caso o campo `enderecoContrato` não seja fornecido (ou venha em branco), o backend do Spring Boot realiza automaticamente o deploy do Smart Contract `ConsortiumGroup` na Blockchain (Ganache).
-   - **Deploy Automático de Token (USDT)**: Caso a propriedade de stablecoin no `application.properties` esteja em branco ou zerada, o backend realiza primeiro o deploy automático do seu contrato [MockToken.sol](file:///C:/Users/luzin/IdeaProjects/Projeto-consorcio/src/main/resources/solidity/MockToken.sol) na blockchain e utiliza o endereço desse token recém-criado como moeda oficial no contrato de consórcio!
    - Fluxo de status do grupo (`EM_FORMACAO` -> `EM_ANDAMENTO` -> `ENCERRADO`).
    - Aquisição de cotas integrada com registro na blockchain.
    - Cancelamento lógico de cotas (Soft Delete).
@@ -31,7 +29,7 @@ O projeto está **completamente funcional e estruturado**. Todas as regras de ne
    - Rotina automática de fiscalização de inadimplência (`@Scheduled`), aplicando multas e marcando restrições financeiras na blockchain para parcelas atrasadas.
    - Confirmação de pagamentos com escuta ativa de eventos de transações da blockchain.
 
-3. **Estratégias de Contemplação (Bidding Strategies)**:
+3. **Estratégias de Contemplação**:
    - **Sorteio**: Escolhe aleatoriamente uma cota ativa e sem pendências.
    - **Lance Livre**: Elege o lance de maior valor no ciclo.
    - **Lance Fixo**: Elege um lance por sorteio entre aqueles que ofertaram o valor fixado.
@@ -44,26 +42,27 @@ O projeto está **completamente funcional e estruturado**. Todas as regras de ne
 
 ---
 
-## 🛠️ Como Configurar e Executar o Projeto
+## 🛠️ Configuração e Execução do Projeto
 
-Para executar o projeto com sucesso para a apresentação/entrega, siga os seguintes passos:
+Para executar o projeto com sucesso, siga os passos:
 
 ### 1. Pré-requisitos
 - Java JDK 21 ou superior instalado.
-- Servidor MySQL rodando localmente (pode ser via Docker ou instalação nativa).
-- Ganache instalado e executando (RPC Server: `http://127.0.0.1:7545`).
+- Servidor MySQL rodando localmente.
+- Ganache instalado e executando/escutando (RPC Server: `http://127.0.0.1:7545`).
 
 ### 2. Configurando o Banco de Dados (MySQL)
-No arquivo `src/main/resources/application.properties`, configure as credenciais do seu banco de dados:
+No arquivo `src/main/resources/application.properties`, configure as credenciais básicas do banco de dados:
 ```properties
 spring.datasource.url=jdbc:mysql://localhost:3306/consorcio_db?createDatabaseIfNotExist=true&serverTimezone=UTC
 spring.datasource.username=seu_usuario
 spring.datasource.password=sua_senha
 ```
 
-### 3. Configurando a Rede Blockchain (Ganache)
+### 3. Configurando a Rede Blockchain (Recomendamos o Ganache)
 1. No Ganache, crie um **Workspace** apontando para a porta `7545`.
 2. Copie o endereço privado (Private Key) de uma das contas do Ganache (que atuará como a carteira administradora do sistema) e adicione no `application.properties`:
+3. Copie outro endereço privado de alguma outra conta para servir como a carteira do backend (que ele vai usar para se comunicar com o Smart Contract).
 ```properties
 web3.rpc-url=http://127.0.0.1:7545
 web3.backend-private-key=0xSUA_CHAVE_PRIVADA_AQUI
@@ -77,7 +76,7 @@ Abra o terminal no diretório raiz do projeto e execute o comando:
 O servidor Spring Boot iniciará por padrão na porta `8080`.
 
 
-## 🧩 Padrões de Projeto (Design Patterns) Aplicados - Disciplina POO2
+## 🧩 Padrões de Projeto (Design Patterns) Aplicados - Seguindo o que foi ensinado na disciplina de POO2
 Para garantir um código com robusto, com baixo acoplamento e excelente manutenibilidade, esse sistema faz uso extensivo de Padrões de Projeto (GoF e Arquiteturais). Abaixo estão os principais padrões adotados no software:
 
 ### Strategy (Padrão Comportamental):
@@ -110,16 +109,16 @@ O Porquê: O Web3j atua como um Wrapper, envelopando o Smart Contract em Solidit
 
 ## 🧪 Fluxo de Testes Passo a Passo (Deploy Manual via Remix)
 
-No diretório `testes.http`, você encontrará requisições prontas para executar esse fluxo completo diretamente na sua IDE. Como a arquitetura exige a presença física dos contratos na blockchain antes da criação do grupo, faremos o deploy via **Remix IDE**.
+No diretório `testes.http`, você encontrará requisições prontas para executar esse fluxo completo diretamente na sua IDE. Como a arquitetura exige a presença física dos contratos na blockchain antes da criação do grupo, temos que fazer o deploy do Smart Contract via **Remix IDE**.
 
 ### Passo 1: Cadastrar os Usuários de Teste (Backend)
 Crie pelo menos dois participantes no banco de dados através da sua API.
 > [!IMPORTANT]
-> Em `carteiraWeb3`, utilize os endereços públicos de contas geradas pelo seu Ganache (por exemplo, a Conta 2 e a Conta 3, visto que a Conta 1 é usada pelo backend/admin).
+> Em `carteiraWeb3`, utilize os endereços públicos de contas geradas pelo seu Ganache (não sendo uma das duas contas usadas para o admin e o backend).
 * Dispare a requisição `POST /usuarios` para cada participante.
 
 ### Passo 2: Deploy dos Contratos Inteligentes via Remix IDE
-Como o sistema interage com tokens ERC20 reais (ou simulados), precisamos primeiro lançar a moeda na rede local e, em seguida, lançar o contrato do consórcio informando qual moeda ele deve aceitar.
+Como o sistema interage com tokens ERC20 reais (ou simulados nesse caso), precisamos primeiro lançar a moeda na rede local e, em seguida, lançar o contrato do consórcio informando qual moeda ele deve aceitar.
 
 #### 2.1 - Configurar o Ambiente no Remix
 1. Abra o [Remix IDE](https://remix.ethereum.org/) no navegador.
