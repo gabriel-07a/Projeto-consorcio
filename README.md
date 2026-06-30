@@ -77,6 +77,35 @@ Abra o terminal no diretório raiz do projeto e execute o comando:
 O servidor Spring Boot iniciará por padrão na porta `8080`.
 
 
+## 🧩 Padrões de Projeto (Design Patterns) Aplicados - Disciplina POO2
+Para garantir um código com robusto, com baixo acoplamento e excelente manutenibilidade, esse sistema faz uso extensivo de Padrões de Projeto (GoF e Arquiteturais). Abaixo estão os principais padrões adotados no software:
+
+### Strategy (Padrão Comportamental):
+
+Onde foi utilizado: No pacote assembleia.strategy, com a interface ContemplacaoStrategy.java e as suas implementações concretas (como LanceFixoStrategy.java, LanceLivreStrategy.java e SorteioStrategy.java).
+
+O Problema Resolvido: O processo de contemplação de uma assembleia muda radicalmente de acordo com a modalidade escolhida. Se usássemos if/else encadeados, a classe da assembleia seria gigantesca e difícil de testar.
+
+O Porquê: O Strategy isola cada regra de negócio de contemplação em uma classe dedicada.
+
+Analogia: Pense nisso como os pneus de um carro de Fórmula 1. O carro (Assembleia) é o mesmo, mas a equipe no pit stop troca rapidamente os pneus (Strategy) para chuva ou pista seca, mudando o comportamento do carro instantaneamente sem precisar reconstruí-lo.
+
+### State (Padrão Comportamental):
+
+Onde foi utilizado: No pacote consorcio.state, através da interface genérica GrupoState.java e suas transições específicas: GrupoAbertoState.java, GrupoEmAndamentoState.java e GrupoFinalizadoState.java.
+
+O Problema Resolvido: Um grupo de consórcio possui regras estritas de transição de status (um grupo EM_ANDAMENTO não pode voltar para EM_FORMACAO). Fazer esse controle via if(status == X) gera um código frágil e propenso a bugs lógicos.
+
+O Porquê: O State permite que o objeto "Grupo" altere o seu comportamento interno quando o seu estado interno muda. Cada classe de Estado sabe exatamente quais transições são permitidas a partir dela.
+
+### Adapter / Wrapper (Padrão Estrutural):
+
+Onde foi utilizado: No pacote blockchain, através do Web3jAdapter.java e nas classes geradas no pacote blockchain.wrapper (como ConsortiumGroup.java e MockToken.java).
+
+O Problema Resolvido: A rede Ethereum e a linguagem Java não falam nativamente a mesma língua. Tipos de dados, assinaturas criptográficas e chamadas RPC são complexos de manipular diretamente.
+
+O Porquê: O Web3j atua como um Wrapper, envelopando o Smart Contract em Solidity e expondo métodos Java familiares (payInstallment(), contemplateWinner()) que a nossa aplicação pode chamar de forma limpa.
+
 ---
 
 ## 🧪 Fluxo de Testes Passo a Passo (Deploy Manual via Remix)
@@ -139,3 +168,4 @@ Agora você pode simular a assembleia da rodada atual via Spring Boot:
 ### Passo 7: Consultar o Caixa do Consórcio
 Consulte em tempo real quanto de saldo o grupo possui e o valor da carta de crédito verificando os dados puros da rede Web3:
 * Chame `GET /grupos/{id}/caixa`.
+
