@@ -168,3 +168,8 @@ Agora você pode simular a assembleia da rodada atual via Spring Boot:
 Consulte em tempo real quanto de saldo o grupo possui e o valor da carta de crédito verificando os dados puros da rede Web3:
 * Chame `GET /grupos/{id}/caixa`.
 
+## Autores
+
+- [@gabriel arcanjo](https://github.com/gabriel-07a)
+- [@andré barbosa](https://github.com/andrebarbosafranca04-tech)
+
